@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#DB3022</color>
+    <color name="colorPrimaryWithHalfTrans">#16DB3022</color>
+    <color name="WhiteText">#F7F7F7</color>
+    <color name="colorPrimaryDark">#D82B1D</color>
+    <color name="colorAccent">#FF3636</color>
+    <color name="White">#FFFF</color>
+    <color name="textColor">#000000</color>
+    <color name="black">#000000</color>
+    <color name="BgLayout">#F8F5F2</color>
+    <color name="Green">#43A047</color>
+    <color name="Grey">#FBFBFB</color>
+    <color name="GreyV2">#BABABA</color>
+    <color name="transparent">#00000000</color>
+    <color name="Gold">#FAC213</color>
+</resources>

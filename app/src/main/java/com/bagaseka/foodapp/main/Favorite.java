@@ -1,0 +1,145 @@
+package com.bagaseka.foodapp.main;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.bagaseka.foodapp.component.adapter.ListCartMenuAdapter;
+import com.bagaseka.foodapp.component.adapter.ListFavoriteAdapter;
+import com.example.foodapp.R;
+import com.bagaseka.foodapp.component.adapter.ListMenuAdapter;
+import com.bagaseka.foodapp.component.model.HomeMainList;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.firebase.ui.firestore.SnapshotParser;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Favorite extends AppCompatActivity implements View.OnClickListener {
+
+    private RecyclerView nFoodFavoriteRv;
+    private FirestoreRecyclerOptions<HomeMainList> favOption;
+    private FirestoreRecyclerAdapter adapterFav;
+    private FirebaseAuth auth;
+    private ImageButton back;
+    private ImageView cart;
+    private TextView notFound,itemCountCart;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_favorite);
+        auth = FirebaseAuth.getInstance();
+        notFound = findViewById(R.id.notFound);
+        itemCountCart = findViewById(R.id.itemCountCart);
+        cart = findViewById(R.id.cart);
+        cart.setOnClickListener(this);
+        back = findViewById(R.id.back);
+        back.setOnClickListener(this);
+        String userID = auth.getUid();
+        RecyclerViewInitial();
+        setCartItemCount(userID);
+
+        Query queryFav = FirebaseFirestore.getInstance()
+                .collection("Akun").document(userID).collection("Favorite");
+
+        queryFav.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                List<String>  MenuID = new ArrayList<>();
+                for (QueryDocumentSnapshot doc : value) {
+                    MenuID.add(doc.getString("FoodID"));
+                }
+                if (MenuID.size() > 0){
+
+                    nFoodFavoriteRv.setVisibility(View.VISIBLE);
+                    Query favQuery = FirebaseFirestore.getInstance()
+                            .collection("Product");
+
+                    favOption = new FirestoreRecyclerOptions.Builder<HomeMainList>()
+                            .setQuery(favQuery, new SnapshotParser<HomeMainList>() {
+                                @Override
+                                public HomeMainList parseSnapshot(@NonNull DocumentSnapshot snapshot) {
+                                    /*Write the process you want to do when taking a snapshot*/
+                                    String nama = snapshot.getString("Nama");
+                                    String harga = String.valueOf(snapshot.get("Harga"));
+                                    String image = snapshot.getString("Image");
+                                    String id = snapshot.getId();
+                                    HomeMainList List = new HomeMainList();
+
+                                    List.setFoodID(id);
+                                    List.setNama(nama);
+                                    List.setImage(image);
+                                    List.setHarga(harga);
+                                    List.setMenuID(MenuID);
+
+                                    return List;
+                                }
+                            }).setLifecycleOwner(Favorite.this).build();
+
+                    adapterFav = new ListFavoriteAdapter(favOption,R.layout.list_card_horizontal);
+                    nFoodFavoriteRv.setAdapter(adapterFav);
+                }else{
+                    nFoodFavoriteRv.setVisibility(View.GONE);
+                }
+            }
+        });
+
+    }
+
+
+    public void RecyclerViewInitial(){
+        nFoodFavoriteRv = findViewById(R.id.favoriteMenuRv);
+        nFoodFavoriteRv.setLayoutManager(new LinearLayoutManager(Favorite.this,RecyclerView.VERTICAL,false));
+    }
+
+    public void setCartItemCount(String userID){
+
+        Query query = FirebaseFirestore.getInstance()
+                .collection("Akun").document(userID).collection("Cart");
+
+        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                int totalItemCount = 0;
+                for (QueryDocumentSnapshot doc : value) {
+
+                    totalItemCount += Integer.parseInt(String.valueOf(doc.get("itemCount")));
+
+                }
+
+                itemCountCart.setText(String.valueOf(totalItemCount));
+            }
+        });
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.back) {
+            finish();
+        }else if (v.getId() == R.id.cart) {
+            Intent moveIntent = new Intent(v.getContext(), Cart.class);
+            startActivity(moveIntent);
+        }
+    }
+}

@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">FoodApp</string>
+    <string name="Login_Text_1">Login</string>
+    <string name="Login_Test_2">Please enter your email and password to using this app</string>
+    <string name="forget_password">Forgot your password?</string>
+    <string name="don_t_have_an_account">Don\’t have an account?</string>
+    <string name="create_new_account">Create New Account</string>
+    <string name="SignPhoneText2">Please enter your phone number to using this app</string>
+    <string name="SignPhoneText1">Enter your phone number</string>
+    <string name="_62">+62</string>
+    <string name="get_verify">GET VERIFY</string>
+    <string name="verify">VERIFY</string>
+    <string name="done">DONE</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="tab_text_1">Ongoing</string>
+    <string name="tab_text_2">Completed</string>
+    <!-- Carousel Text -->
+    <string name="title1">Korean Food Restaurant</string>
+    <string name="desc1">A side dish that awakens the taste buds that have been sleeping during the winter! It\'s stir-fried garlic dried prawns made with garlic species that are in season until May. It\'s one of the side dishes that makes you feel good, isn\'t it? If you add dried prawns and stir-fry them, it\'s really easy to make.</string>
+    <string name="login">LogIn</string>
+    <string name="sign_up">Sign up</string>
+    <string name="title_activity_test">test</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="see_all">See More</string>
+</resources>
