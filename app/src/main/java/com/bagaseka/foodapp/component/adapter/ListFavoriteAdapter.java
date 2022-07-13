@@ -42,20 +42,21 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class ListFavoriteAdapter extends FirestoreRecyclerAdapter<HomeMainList, ListFavoriteAdapter.ViewHolder> {
+public class ListFavoriteAdapter extends RecyclerView.Adapter<ListFavoriteAdapter.ViewHolder>{
 
+    private ArrayList<HomeMainList> favData;
     private FirebaseAuth auth = FirebaseAuth.getInstance();
     private String userID = auth.getUid();
     private Context context;
     private View rootView;
     private ConstraintLayout FavoriteLayout;
     private int layout;
+    private DocumentReference Ref;
 
-    public ListFavoriteAdapter(@NonNull FirestoreRecyclerOptions<HomeMainList> options, int layout) {
-        super(options);
+    public ListFavoriteAdapter(ArrayList<HomeMainList> favData, int layout) {
+        this.favData = favData;
         this.layout = layout;
     }
-
 
     @NonNull
     @Override
@@ -72,8 +73,8 @@ public class ListFavoriteAdapter extends FirestoreRecyclerAdapter<HomeMainList, 
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull ListFavoriteAdapter.ViewHolder holder, int position, @NonNull HomeMainList favorite) {
-
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        HomeMainList favorite = favData.get(position);
         holder.setNameFood(favorite.getNama());
         holder.setPriceFood(favorite.getHarga());
         holder.setImageFood(favorite.getImage());
@@ -81,14 +82,51 @@ public class ListFavoriteAdapter extends FirestoreRecyclerAdapter<HomeMainList, 
         holder.setRating(favorite.foodID);
         holder.setFavorite(favorite.foodID);
 
+        holder.favoriteFood.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (holder.favoriteFood.isSelected()) {
+
+                    Ref = FirebaseFirestore.getInstance()
+                            .collection("Akun").document(userID)
+                            .collection("Favorite").document(holder.idFood);
+
+                    Ref.delete();
+                    holder.setSnackbar(v, R.color.colorPrimary, "Deleted from favorite");
+                    holder.favoriteFood.setSelected(false);
+
+                    favData.remove(holder.getAbsoluteAdapterPosition());
+                    notifyItemRemoved(holder.getAbsoluteAdapterPosition());
+
+
+                }
+//                    else {
+//
+//                        Ref = FirebaseFirestore.getInstance()
+//                                .collection("Akun").document(userID)
+//                                .collection("Favorite").document(idFood);
+//                        Map<String, Object> Favorite = new HashMap<>();
+//                        Favorite.put("FoodID", idFood);
+//                        Ref.set(Favorite);
+//                        setSnackbar(v, R.color.Green, "Success add to favorite");
+//                        favoriteFood.setSelected(true);
+//                    }
+            }
+        });
     }
+
+    @Override
+    public int getItemCount() {
+        return favData.size();
+    }
+
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView nameFood, priceFood, itemCount, countReview, rateReview;
         ImageView imageFood, favoriteFood;
         String idFood;
-        DocumentReference Ref;
+
         //int positionItem = 0;
 
         public ViewHolder(@NonNull View itemView) {
@@ -110,32 +148,7 @@ public class ListFavoriteAdapter extends FirestoreRecyclerAdapter<HomeMainList, 
                 }
             });
 
-            favoriteFood.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (favoriteFood.isSelected()) {
 
-                        Ref = FirebaseFirestore.getInstance()
-                                .collection("Akun").document(userID)
-                                .collection("Favorite").document(idFood);
-
-                        Ref.delete();
-                        setSnackbar(v, R.color.colorPrimary, "Deleted from favorite");
-                        favoriteFood.setSelected(false);
-
-                    } else {
-
-                        Ref = FirebaseFirestore.getInstance()
-                                .collection("Akun").document(userID)
-                                .collection("Favorite").document(idFood);
-                        Map<String, Object> Favorite = new HashMap<>();
-                        Favorite.put("FoodID", idFood);
-                        Ref.set(Favorite);
-                        setSnackbar(v, R.color.Green, "Success add to favorite");
-                        favoriteFood.setSelected(true);
-                    }
-                }
-            });
 
         }
 //

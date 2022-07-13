@@ -28,6 +28,8 @@ import com.example.foodapp.R;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.firebase.ui.firestore.SnapshotParser;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -45,8 +47,8 @@ import java.util.List;
 public class Home extends Fragment {
 
     private RecyclerView nFoodRecommendRv, nFoodFavoriteRv, nFoodExplore;
-    private FirestoreRecyclerOptions<HomeMainList> options, favOption, recOptions;
-    private FirestoreRecyclerAdapter adapter, adapterRecommend, adapterFav;
+    private FirestoreRecyclerOptions<HomeMainList> options, recOptions;
+    private FirestoreRecyclerAdapter adapter, adapterRecommend;
     private ImageView cart;
     private TextView favoriteMenu, itemCountCart;
     private ConstraintLayout FavoriteLayout;
@@ -56,6 +58,7 @@ public class Home extends Fragment {
     private FirebaseAuth auth = FirebaseAuth.getInstance();
     private CarouselView promo;
     private String[] imageCarousel = {"https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Serba-Ekslusif-768x255.jpg", "https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/03/Banner_Bagi-bagi-Semangat-Ramadan-768x256.jpg", "https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Bebas-Ongkir-768x256.jpg", "https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Kotak-Kejutan-768x224.jpg", "https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Gajian-Ekstra-Ramadan-768x278.jpg"};
+    private ListFavoriteAdapter listFavoriteAdapter;
 
     public Home() {
         // Required empty public constructor
@@ -222,39 +225,45 @@ public class Home extends Fragment {
         queryFav.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                List<String> MenuID = new ArrayList<>();
+                List<String> menuID = new ArrayList<>();
                 for (QueryDocumentSnapshot doc : value) {
-                    MenuID.add(doc.getString("FoodID"));
+                    menuID.add(doc.getString("FoodID"));
                 }
-                if (MenuID.size() > 0) {
+                if (menuID.size() > 0) {
                     FavoriteLayout.setVisibility(View.VISIBLE);
 
                     Query favQuery = FirebaseFirestore.getInstance()
-                            .collection("Product")
-                            .whereIn("FoodID", MenuID);
+                            .collection("Product");
 
-                    favOption = new FirestoreRecyclerOptions.Builder<HomeMainList>()
-                            .setQuery(favQuery, new SnapshotParser<HomeMainList>() {
-                                @Override
-                                public HomeMainList parseSnapshot(@NonNull DocumentSnapshot snapshot) {
-                                    /*Write the process you want to do when taking a snapshot*/
-                                    HomeMainList List = new HomeMainList();
-                                    String nama = snapshot.getString("Nama");
-                                    String harga = String.valueOf(snapshot.get("Harga"));
-                                    String image = snapshot.getString("Image");
-                                    String id = snapshot.getId();
+                    favQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            ArrayList<HomeMainList> coursesArrayList = new ArrayList<>();
+                            for (DocumentSnapshot doc : task.getResult()){
+                                for (int i = 0;i<menuID.size();i++) {
+                                    if (menuID.get(i).equals(doc.getString("FoodID"))){
+                                        String nama = doc.getString("Nama");
+                                        String harga = String.valueOf(doc.get("Harga"));
+                                        String image = doc.getString("Image");
+                                        String id = doc.getId();
+                                        HomeMainList List = new HomeMainList();
 
-                                    List.setFoodID(id);
-                                    List.setNama(nama);
-                                    List.setImage(image);
-                                    List.setHarga(harga);
-                                    List.setMenuID(MenuID);
-                                    return List;
+                                        List.setFoodID(id);
+                                        List.setNama(nama);
+                                        List.setImage(image);
+                                        List.setHarga(harga);
+                                        List.setMenuID(menuID);
+
+                                        coursesArrayList.add(List);
+                                        break;
+                                    }
                                 }
-                            }).setLifecycleOwner(Home.this).build();
+                            }
+                            listFavoriteAdapter = new ListFavoriteAdapter(coursesArrayList,R.layout.list_card);
+                            nFoodFavoriteRv.setAdapter(listFavoriteAdapter);
+                        }
+                    });
 
-                    adapterFav = new ListFavoriteAdapter(favOption, R.layout.list_card);
-                    nFoodFavoriteRv.setAdapter(adapterFav);
                 } else {
                     FavoriteLayout.setVisibility(View.GONE);
                 }

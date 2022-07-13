@@ -38,12 +38,12 @@ import java.util.List;
 public class Favorite extends AppCompatActivity implements View.OnClickListener {
 
     private RecyclerView nFoodFavoriteRv;
-    private FirestoreRecyclerOptions<HomeMainList> favOption;
-    private FirestoreRecyclerAdapter adapterFav;
     private FirebaseAuth auth;
     private ImageButton back;
     private ImageView cart;
     private TextView notFound,itemCountCart;
+
+    private ListFavoriteAdapter listFavoriteAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,44 +61,50 @@ public class Favorite extends AppCompatActivity implements View.OnClickListener 
         setCartItemCount(userID);
 
         Query queryFav = FirebaseFirestore.getInstance()
-                .collection("Akun").document(userID).collection("Favorite");
+                .collection("Akun").document(userID)
+                .collection("Favorite");
 
         queryFav.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                List<String>  MenuID = new ArrayList<>();
+                List<String>  menuID = new ArrayList<>();
                 for (QueryDocumentSnapshot doc : value) {
-                    MenuID.add(doc.getString("FoodID"));
+                    menuID.add(doc.getString("FoodID"));
                 }
-                if (MenuID.size() > 0){
+                if (menuID.size() > 0){
 
                     nFoodFavoriteRv.setVisibility(View.VISIBLE);
                     Query favQuery = FirebaseFirestore.getInstance()
                             .collection("Product");
 
-                    favOption = new FirestoreRecyclerOptions.Builder<HomeMainList>()
-                            .setQuery(favQuery, new SnapshotParser<HomeMainList>() {
-                                @Override
-                                public HomeMainList parseSnapshot(@NonNull DocumentSnapshot snapshot) {
-                                    /*Write the process you want to do when taking a snapshot*/
-                                    String nama = snapshot.getString("Nama");
-                                    String harga = String.valueOf(snapshot.get("Harga"));
-                                    String image = snapshot.getString("Image");
-                                    String id = snapshot.getId();
-                                    HomeMainList List = new HomeMainList();
+                    favQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            ArrayList<HomeMainList> coursesArrayList = new ArrayList<>();
+                            for (DocumentSnapshot doc : task.getResult()){
+                                for (int i = 0;i<menuID.size();i++) {
+                                    if (menuID.get(i).equals(doc.getString("FoodID"))){
+                                        String nama = doc.getString("Nama");
+                                        String harga = String.valueOf(doc.get("Harga"));
+                                        String image = doc.getString("Image");
+                                        String id = doc.getId();
+                                        HomeMainList List = new HomeMainList();
 
-                                    List.setFoodID(id);
-                                    List.setNama(nama);
-                                    List.setImage(image);
-                                    List.setHarga(harga);
-                                    List.setMenuID(MenuID);
+                                        List.setFoodID(id);
+                                        List.setNama(nama);
+                                        List.setImage(image);
+                                        List.setHarga(harga);
+                                        List.setMenuID(menuID);
 
-                                    return List;
+                                        coursesArrayList.add(List);
+                                        break;
+                                    }
                                 }
-                            }).setLifecycleOwner(Favorite.this).build();
-
-                    adapterFav = new ListFavoriteAdapter(favOption,R.layout.list_card_horizontal);
-                    nFoodFavoriteRv.setAdapter(adapterFav);
+                            }
+                            listFavoriteAdapter = new ListFavoriteAdapter(coursesArrayList,R.layout.list_card_horizontal);
+                            nFoodFavoriteRv.setAdapter(listFavoriteAdapter);
+                        }
+                    });
                 }else{
                     nFoodFavoriteRv.setVisibility(View.GONE);
                 }
