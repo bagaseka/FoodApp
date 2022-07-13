@@ -36,8 +36,10 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class ListFavoriteAdapter extends FirestoreRecyclerAdapter<HomeMainList, ListFavoriteAdapter.ViewHolder> {
@@ -72,14 +74,12 @@ public class ListFavoriteAdapter extends FirestoreRecyclerAdapter<HomeMainList, 
     @Override
     protected void onBindViewHolder(@NonNull ListFavoriteAdapter.ViewHolder holder, int position, @NonNull HomeMainList favorite) {
 
-        if (favorite.getFoodID() != null && !favorite.getFoodID().isEmpty()){
-            holder.setNameFood(favorite.getNama());
-            holder.setPriceFood(favorite.getHarga());
-            holder.setImageFood(favorite.getImage());
-            holder.setFoodID(favorite.getFoodID());
-            holder.setRating(favorite.foodID);
-            holder.setFavorite(favorite.foodID);
-        }
+        holder.setNameFood(favorite.getNama());
+        holder.setPriceFood(favorite.getHarga());
+        holder.setImageFood(favorite.getImage());
+        holder.setFoodID(favorite.getFoodID());
+        holder.setRating(favorite.foodID);
+        holder.setFavorite(favorite.foodID);
 
     }
 
@@ -148,7 +148,13 @@ public class ListFavoriteAdapter extends FirestoreRecyclerAdapter<HomeMainList, 
         }
 
         public void setPriceFood(String price) {
-            priceFood.setText(price);
+            priceFood.setText(formatRupiah(Double.parseDouble(price)));
+        }
+
+        private String formatRupiah(Double number){
+            Locale localeID = new Locale("in", "ID");
+            NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
+            return formatRupiah.format(number);
         }
 
         public void setImageFood(String image) {

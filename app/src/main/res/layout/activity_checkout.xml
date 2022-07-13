@@ -153,14 +153,6 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/textViewtitle" />
 
-                    <TextView
-                        android:id="@+id/textView22"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Rp"
-                        app:layout_constraintBottom_toBottomOf="@+id/textView19"
-                        app:layout_constraintEnd_toStartOf="@+id/subPrice"
-                        app:layout_constraintTop_toTopOf="@+id/textView19" />
 
                     <TextView
                         android:id="@+id/subPrice"
@@ -180,14 +172,6 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/textView19" />
 
-                    <TextView
-                        android:id="@+id/textView17"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Rp"
-                        app:layout_constraintBottom_toBottomOf="@+id/textView20"
-                        app:layout_constraintEnd_toStartOf="@+id/ppn"
-                        app:layout_constraintTop_toTopOf="@+id/textView20" />
 
                     <TextView
                         android:id="@+id/ppn"
@@ -233,30 +217,13 @@
                 android:layout_height="wrap_content"
                 android:text="Total Harga" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/total"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/metropolis_bold"
-                    android:text="Rp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/total"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/metropolis_bold"
-                    android:text="200000000"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </LinearLayout>
+                android:fontFamily="@font/metropolis_bold"
+                android:text="0"
+                android:layout_marginTop="4dp" />
         </LinearLayout>
 
         <Button

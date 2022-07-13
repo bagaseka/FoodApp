@@ -10,8 +10,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.bagaseka.foodapp.IntroScreen;
 import com.bagaseka.foodapp.main.MainActivity;
 import com.example.foodapp.R;
 import com.bagaseka.foodapp.signinsignup.ViewModel.AuthViewModel;
@@ -23,6 +25,7 @@ public class SignIn extends AppCompatActivity implements View.OnClickListener {
     private EditText inputEmail,inputPassword;
     private TextView SignUp;
     private Button SignIn;
+    private ImageButton Back;
     private AuthViewModel viewModel;
     private Intent moveIntent;
     private FirebaseAuth auth;
@@ -52,9 +55,10 @@ public class SignIn extends AppCompatActivity implements View.OnClickListener {
 
         SignUp = findViewById(R.id.SignUp);
         ForgotPass = findViewById(R.id.ForgotPass);
-
         SignIn = findViewById(R.id.SignIn);
+        Back = findViewById(R.id.back);
 
+        Back.setOnClickListener(this);
         SignUp.setOnClickListener(this);
         ForgotPass.setOnClickListener(this);
         SignIn.setOnClickListener(this);
@@ -75,11 +79,19 @@ public class SignIn extends AppCompatActivity implements View.OnClickListener {
             case R.id.ForgotPass:
                 moveIntent = new Intent(this, com.bagaseka.foodapp.forgot.ForgotPass.class);
                 startActivity(moveIntent);
+                //CustomIntent.customType(this, "right-to-left");
                 break;
 
             case R.id.SignUp:
                 moveIntent = new Intent(this, SignUp.class);
                 startActivity(moveIntent);
+                //CustomIntent.customType(this, "right-to-left");
+                break;
+
+            case R.id.back:
+                moveIntent = new Intent(this, IntroScreen.class);
+                startActivity(moveIntent);
+                //CustomIntent.customType(this, "left-to-right");
                 break;
         }
     }

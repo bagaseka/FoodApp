@@ -1,5 +1,7 @@
 package com.bagaseka.foodapp.component.model;
 
+import java.util.Objects;
+
 public class ChildItem {
     public String nama;
     public String foodID;
@@ -61,7 +63,6 @@ public class ChildItem {
         this.harga = harga;
     }
 
-
     public String getNama() {
         return nama;
     }
@@ -76,5 +77,33 @@ public class ChildItem {
 
     public void setFoodID(String foodID) {
         this.foodID = foodID;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChildItem childItem = (ChildItem) o;
+        return harga == childItem.harga && counter == childItem.counter && reviewStatus == childItem.reviewStatus && progress == childItem.progress && Objects.equals(nama, childItem.nama) && Objects.equals(foodID, childItem.foodID) && Objects.equals(image, childItem.image) && Objects.equals(orderId, childItem.orderId);
+    }
+
+    public boolean checkId(ChildItem data) {
+        return this.getFoodID().equals(data.foodID) && this.getOrderId().equals(data.getOrderId());
+    }
+
+    public void update(ChildItem newData) {
+        nama = newData.getNama();
+        foodID = newData.getFoodID();
+        image = newData.getImage();
+        harga = newData.getHarga();
+        counter = newData.counter;
+        reviewStatus = newData.reviewStatus;
+        progress = newData.progress;
+        orderId = newData.getOrderId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nama, foodID, image, harga, counter, reviewStatus, progress, orderId);
     }
 }

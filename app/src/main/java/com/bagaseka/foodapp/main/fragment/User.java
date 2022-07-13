@@ -58,6 +58,7 @@ public class User extends Fragment {
                 viewModel.signOut();
                 Intent moveIntent2 = new Intent(getActivity(), SignIn.class);
                 startActivity(moveIntent2);
+
             }
         });
 

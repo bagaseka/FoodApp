@@ -142,15 +142,10 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
                 }else{
                     cart.put("Review", inputReview.getText().toString());
                 }
-
                 addFeedback.set(cart);
-
             }
-
             this.dismiss();
-
         }
-
     }
 
     public void updateList(OnSubmitListener listener){

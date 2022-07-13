@@ -24,7 +24,9 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class ListCartMenuAdapter extends RecyclerView.Adapter<ListCartMenuAdapter.ViewHolder> {
 
@@ -64,6 +66,7 @@ public class ListCartMenuAdapter extends RecyclerView.Adapter<ListCartMenuAdapte
         holder.setFoodID(cart.getFoodID());
         holder.setItemCount(cart.getItemCount());
         holder.positionItem(position);
+        holder.setRating(cart.foodID);
         holder.setPriceFood(String.valueOf(Integer.parseInt(cart.getHarga()) * Integer.parseInt(cart.getItemCount())));
 
         subtotal = subtotal + Integer.parseInt(cart.getItemCount()) * Integer.parseInt(cart.getHarga());
@@ -104,7 +107,7 @@ public class ListCartMenuAdapter extends RecyclerView.Adapter<ListCartMenuAdapte
 
         finalTotal = subtotal;
 
-        textviewTotalExpense.setText(String.valueOf(finalTotal));
+        textviewTotalExpense.setText(holder.formatRupiah(Double.parseDouble(String.valueOf(finalTotal))));
     }
 
     @Override
@@ -144,7 +147,11 @@ public class ListCartMenuAdapter extends RecyclerView.Adapter<ListCartMenuAdapte
                 }
             });
         }
-
+        private String formatRupiah(Double number){
+            Locale localeID = new Locale("in", "ID");
+            NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
+            return formatRupiah.format(number);
+        }
         public void positionItem(int position){
             positionItem = position;
         }
@@ -152,7 +159,7 @@ public class ListCartMenuAdapter extends RecyclerView.Adapter<ListCartMenuAdapte
             nameFood.setText(name);
         }
         public void setPriceFood(String price){
-            priceFood.setText(price);
+            priceFood.setText(formatRupiah(Double.parseDouble(price)));
         }
         public void setImageFood(String image){
             Glide.with(itemView.getContext())
@@ -190,7 +197,7 @@ public class ListCartMenuAdapter extends RecyclerView.Adapter<ListCartMenuAdapte
                     .update("itemCount", count);
 
             finalTotal = subtotal;
-            textviewTotalExpense.setText(String.valueOf(subtotal));
+            textviewTotalExpense.setText(formatRupiah(Double.parseDouble(String.valueOf(subtotal))));
 
         }
         public void setRating(String idFood){

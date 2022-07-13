@@ -6,12 +6,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.bagaseka.foodapp.IntroScreen;
 import com.bagaseka.foodapp.component.model.ReviewItem;
+import com.bagaseka.foodapp.signinsignup.SignUp;
 import com.example.foodapp.R;
 import com.bagaseka.foodapp.component.adapter.ListCustomerReviewAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
@@ -28,6 +31,9 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CustomerReview extends AppCompatActivity implements View.OnClickListener {
 
@@ -58,8 +64,8 @@ public class CustomerReview extends AppCompatActivity implements View.OnClickLis
         back = findViewById(R.id.back);
         back.setOnClickListener(this);
 
-        DocumentReference userData = FirebaseFirestore.getInstance()
-                .collection("Akun").document(userID);
+        Query userData = FirebaseFirestore.getInstance()
+                .collection("Feedback");
 
         Query dataReviewQuery = FirebaseFirestore.getInstance()
                 .collection("Feedback")
@@ -81,19 +87,22 @@ public class CustomerReview extends AppCompatActivity implements View.OnClickLis
             }
         });
 
-        userData.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        userData.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
 
-                    String nameUser = document.getString("name");
-                    String imageUser = document.getString("image");
-
-                    LoadDataIntoRecyclerview(foodID,nameUser,imageUser);
+                if (value == null) return;
+                List<String> userID = new ArrayList<>();
+                List<String> foodID = new ArrayList<>();
+                for (QueryDocumentSnapshot doc : value){
+                    userID.add(doc.getString("UserID"));
+                    foodID.add(doc.getString("FoodID"));
+                    //LoadDataIntoRecyclerview(foodID,nameUser,imageUser);
                 }
+
             }
         });
+
 
     }
 
@@ -127,6 +136,10 @@ public class CustomerReview extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onClick(View v) {
-
+        switch (v.getId()) {
+            case R.id.back:
+                finish();
+                break;
+        }
     }
 }

@@ -22,7 +22,7 @@
             style="@style/HeadLineText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Order History"
+            android:text="My Order"
             android:textAlignment="center"
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"

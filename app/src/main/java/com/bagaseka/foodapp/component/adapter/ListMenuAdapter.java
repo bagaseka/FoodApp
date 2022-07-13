@@ -33,9 +33,11 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class ListMenuAdapter extends FirestoreRecyclerAdapter<HomeMainList, ListMenuAdapter.FoodViewHolder>  {
@@ -90,6 +92,7 @@ public class ListMenuAdapter extends FirestoreRecyclerAdapter<HomeMainList, List
                     Intent moveWithDataIntent = new Intent(v.getContext(), FoodDetail.class);
                     moveWithDataIntent.putExtra(FoodDetail.FOOD_ID, idFood);
                     v.getContext().startActivity(moveWithDataIntent);
+
                 }
             });
 
@@ -124,8 +127,15 @@ public class ListMenuAdapter extends FirestoreRecyclerAdapter<HomeMainList, List
             nameFood.setText(name);
         }
         public void setPriceFood(String price){
-            priceFood.setText(price);
+            priceFood.setText(formatRupiah(Double.parseDouble(price)));
         }
+
+        private String formatRupiah(Double number){
+            Locale localeID = new Locale("in", "ID");
+            NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
+            return formatRupiah.format(number);
+        }
+
         public void setImageFood(String image){
             Glide.with(itemView.getContext())
                     .load(image)

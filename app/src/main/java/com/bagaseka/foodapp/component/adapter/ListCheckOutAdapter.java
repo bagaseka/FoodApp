@@ -16,7 +16,9 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class ListCheckOutAdapter extends RecyclerView.Adapter<ListCheckOutAdapter.FoodViewHolder>  {
 
@@ -63,9 +65,9 @@ public class ListCheckOutAdapter extends RecyclerView.Adapter<ListCheckOutAdapte
 
         total = subtotal + ppn;
 
-        textviewFee.setText(String.valueOf(ppn));
-        textviewSubTotal.setText(String.valueOf(subtotal));
-        textviewTotal.setText(String.valueOf(total));
+        textviewFee.setText(holder.formatRupiah(Double.parseDouble(String.valueOf(ppn))));
+        textviewSubTotal.setText(holder.formatRupiah(Double.parseDouble(String.valueOf(subtotal))));
+        textviewTotal.setText(holder.formatRupiah(Double.parseDouble(String.valueOf(total))));
     }
 
     @Override
@@ -88,7 +90,9 @@ public class ListCheckOutAdapter extends RecyclerView.Adapter<ListCheckOutAdapte
             nameFood.setText(name);
         }
         public void setPriceFood(String price){
-            priceFood.setText("Rp"+price);
+            priceFood.setText(formatRupiah(Double.parseDouble(price)));
+
+
         }
         public void setFoodID(String id){
             idFood = id;
@@ -96,7 +100,11 @@ public class ListCheckOutAdapter extends RecyclerView.Adapter<ListCheckOutAdapte
         public void setItemCount(String count){
             itemCount.setText(count);
         }
-
+        private String formatRupiah(Double number){
+            Locale localeID = new Locale("in", "ID");
+            NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
+            return formatRupiah.format(number);
+        }
     }
 }
 

@@ -30,7 +30,9 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class FoodDetail extends AppCompatActivity implements View.OnClickListener {
@@ -92,7 +94,8 @@ public class FoodDetail extends AppCompatActivity implements View.OnClickListene
 
                     setRating(document.getString("FoodID"));
 
-                    priceDetail.setText("Rp"+ String.valueOf(document.get("Harga")));
+                    priceDetail.setText(formatRupiah(Double.parseDouble(String.valueOf(document.get("Harga")))));
+
                     descripDetail.setText(document.getString("Descrip"));
 
                     FirebaseFirestore.getInstance()
@@ -216,6 +219,13 @@ public class FoodDetail extends AppCompatActivity implements View.OnClickListene
             }
         });
     }
+
+    private String formatRupiah(Double number){
+        Locale localeID = new Locale("in", "ID");
+        NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
+        return formatRupiah.format(number);
+    }
+
     public void setRatingReview(String idFood){
         Query dataReviewQuery = FirebaseFirestore.getInstance()
                 .collection("Feedback")

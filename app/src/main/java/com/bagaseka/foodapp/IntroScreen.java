@@ -61,9 +61,11 @@ public class IntroScreen extends AppCompatActivity implements View.OnClickListen
         if (v.getId() == R.id.SignIn){
             Intent moveIntent = new Intent(IntroScreen.this, SignIn.class);
             startActivity(moveIntent);
+            //CustomIntent.customType(this, "right-to-left");
         }else if (v.getId() == R.id.SignUp){
             Intent moveIntent = new Intent(IntroScreen.this, SignUp.class);
             startActivity(moveIntent);
+            //CustomIntent.customType(this, "right-to-left");
         }
     }
 }

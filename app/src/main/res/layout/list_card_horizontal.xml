@@ -68,6 +68,7 @@
             android:id="@+id/rateReview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:maxLength="3"
             android:fontFamily="@font/metropolis_medium"
             android:text="5.0" />
 
@@ -99,30 +100,17 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/textView15"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/metropolis_medium"
-        android:text="IDR "
-        android:textColor="#000"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="@+id/imageFood"
-        app:layout_constraintStart_toStartOf="@+id/linearLayout4"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout4" />
 
     <TextView
         android:id="@+id/priceFood"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:fontFamily="@font/metropolis_medium"
+        android:fontFamily="@font/metropolis_black"
         android:text="15000"
-        android:textColor="#000"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/imageFood"
-        app:layout_constraintStart_toEndOf="@+id/textView15"
+        app:layout_constraintStart_toStartOf="@+id/linearLayout4"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout4" />
 
             <ImageButton

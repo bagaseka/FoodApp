@@ -38,12 +38,13 @@
                 style="@style/HeadLineText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
                 android:text="Customer Review"
                 android:textAlignment="center"
-                android:layout_marginStart="20dp"
                 android:textSize="18sp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/back"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -68,8 +69,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="7dp"
+                android:maxLength="3"
                 android:fontFamily="@font/metropolis_medium"
-                android:text="5.0 / 5.0"
+                android:text="0"
                 android:textSize="24sp" />
 
         </LinearLayout>

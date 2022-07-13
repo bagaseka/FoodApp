@@ -1,32 +1,24 @@
 package com.bagaseka.foodapp.main.fragment;
 
-import android.app.FragmentTransaction;
 import android.os.Bundle;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager2.widget.ViewPager2;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.bagaseka.foodapp.component.adapter.OrderListChildAdapter;
-import com.bagaseka.foodapp.component.adapter.OrderListParentAdapter;
 import com.bagaseka.foodapp.component.model.ChildItem;
-import com.bagaseka.foodapp.component.model.ParentItem;
 import com.example.foodapp.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -36,11 +28,14 @@ import java.util.List;
 
 public class History extends Fragment {
 
-    private View v;
-    private RecyclerView parentRecyclerViewItem;
-    private FirebaseAuth auth;
+    private final String TAG = "History";
+
     private String userID;
-    private final OrderListParentAdapter parentAdapter = new OrderListParentAdapter();
+    private final OrderListChildAdapter childAdapter = new OrderListChildAdapter();
+
+    private ListenerRegistration keysListener = null;
+    private ListenerRegistration descListener = null;
+    private ListenerRegistration productsListener = null;
 
     public History() {
         // Required empty public constructor
@@ -50,164 +45,167 @@ public class History extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        v = inflater.inflate(R.layout.fragment_history, container, false);
+        View view = inflater.inflate(R.layout.fragment_history, container, false);
 
-        auth = FirebaseAuth.getInstance();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
         userID = auth.getUid();
 
-        parentRecyclerViewItem = v.findViewById(R.id.listOrderRv);
+        RecyclerView parentRecyclerViewItem = view.findViewById(R.id.listOrderRv);
         parentRecyclerViewItem.setLayoutManager(new LinearLayoutManager(
-                getContext(),RecyclerView.VERTICAL,false));
+                getContext(), RecyclerView.VERTICAL, false));
 
-        ParentItemList(new MyCallbackParent() {
-            @Override
-            public void onCallback(List<ParentItem> parentItemList) {
-                History.this.setRecyclerView(parentItemList);
-            }
-        });
+        parentRecyclerViewItem.setAdapter(childAdapter);
+        getHistoryData(childAdapter::submitItem);
 
-        return v;
+        return view;
     }
 
-    private void setRecyclerView(List<ParentItem> parentItemList) {
-        parentAdapter.setParentItemList(parentItemList);
-        parentRecyclerViewItem.setAdapter(parentAdapter);
-    }
+    private void getHistoryData(OnDataCallback callback) {
+        getHistoryKeys((key, progress) -> getHistoryFoodDesc(key, (orderFoodId, menuCounts, statusReviews) -> {
+            Log.d("TestCounter", menuCounts.toString());
+            Log.d("TestStatusReviews", menuCounts.toString());
 
-    private void ParentItemList(MyCallbackParent MyCallbackParent) {
+            getProducts(items -> {
+                for (int i = 0; i < orderFoodId.size(); i++) {
+                    for (int j = 0; j < items.size(); j++) {
+                        if (items.get(j).getFoodID().equals(orderFoodId.get(i))) {
+                            Log.d(TAG, "index: " + j + " orderFoodId: " + orderFoodId.get(i) + "products: " + items.get(i));
+                            Log.d("TestCounter index", menuCounts.get(i));
 
-        Query query = FirebaseFirestore.getInstance()
-                .collection("Pesanan")
-                .orderBy("MyOrderNumber", Query.Direction.DESCENDING);
+                            ChildItem item = new ChildItem();
 
-        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            item.setFoodID(items.get(j).getFoodID());
+                            item.setNama(items.get(j).getNama());
+                            item.setImage(items.get(j).getImage());
+                            item.setHarga(items.get(j).getHarga());
+                            item.setOrderId(key);
+                            item.setProgress(progress);
+                            item.setCounter(Integer.parseInt(menuCounts.get(i)));
+                            item.setReviewStatus(statusReviews.get(i));
 
-                ArrayList<ParentItem> parentItemList = new ArrayList<>();
-
-                for (DocumentSnapshot doc : task.getResult()) {
-                    if (doc.getString("UserID").equals(userID)){
-                        ParentItem item = new ParentItem();
-                        String date = doc.getString("OrderID");
-                        item.setDate(date);
-
-                        parentItemList.add(item);
+                            callback.onCallback(item);
+                            break;
+                        }
                     }
                 }
-
-                ChildItemList(new MyCallbackChild() {
-                    @Override
-                    public void onCallback(List<ChildItem> childItemList) {
-                        OrderListChildAdapter childAdapter = new OrderListChildAdapter();
-                        childAdapter.setChildItemList(childItemList);
-                        parentAdapter.addChildAdapter(childAdapter);
-                    }
-                });
-                MyCallbackParent.onCallback(parentItemList);
-            }
-        });
+            });
+        }));
     }
 
-    private void ChildItemList(MyCallbackChild myCallback) {
+    private void getHistoryKeys(GetKeysCallback callback) {
         Query queryMenu = FirebaseFirestore.getInstance()
                 .collection("Pesanan")
-                .whereEqualTo("UserID" , userID)
+                .whereEqualTo("UserID", userID)
                 .orderBy("MyOrderNumber", Query.Direction.DESCENDING);
 
-        queryMenu.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        keysListener = queryMenu.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                Boolean progress;
-                String key;
-                if (value == null) {
-                    return;
-                }
-                for (QueryDocumentSnapshot doc : value){
-                    progress = doc.getBoolean("Status");
-                    key = doc.getId();
-                    Query queryOrderDataMenu = FirebaseFirestore.getInstance()
-                            .collection("Pesanan")
-                            .document(doc.getId())
-                            .collection("Food");
+                if (value == null) return;
 
-                    Boolean finalProgress = progress;
-                    String finalKey = key;
-                    queryOrderDataMenu.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                        @Override
-                        public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                            ArrayList<String>  orderFoodID = new ArrayList<>();
-                            ArrayList<String>  menuCount = new ArrayList<>();
-                            ArrayList<Boolean>  statusReview = new ArrayList<>();
+                for (QueryDocumentSnapshot doc : value) {
+                    String key = doc.getId();
+                    Boolean progress = doc.getBoolean("Status");
 
-                            if (value == null) {
-                                return;
-                            }
-                            for (QueryDocumentSnapshot doc : value){
-                                orderFoodID.add(doc.getString("FoodID"));
-                                menuCount.add(doc.getString("itemCount"));
-                                statusReview.add(doc.getBoolean("StatusReview"));
-                            }
-
-                            if (orderFoodID.size() > 0){
-
-                                Query queryFoodData = FirebaseFirestore.getInstance()
-                                        .collection("Product")
-                                        .whereIn("FoodID", orderFoodID);
-
-                                queryFoodData.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                                    @Override
-                                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                                        ArrayList<ChildItem> childItemList = new ArrayList<>();
-                                        int index = 0;
-                                        if (value == null) {
-                                            return;
-                                        }
-                                        for (QueryDocumentSnapshot doc : value){
-                                            ChildItem item = new ChildItem();
-
-                                            int itemCount = Integer.valueOf(menuCount.get(index));
-                                            Boolean reviewStat = statusReview.get(index);
-
-                                            String nama = doc.getString("Nama");
-                                            String harga = String.valueOf(doc.get("Harga"));
-                                            String image = doc.getString("Image");
-                                            String id = doc.getId();
-
-                                            item.setReviewStatus(reviewStat);
-                                            item.setProgress(finalProgress);
-                                            item.setOrderId(finalKey);
-
-                                            item.setCounter(itemCount);
-                                            item.setFoodID(id);
-                                            item.setNama(nama);
-
-                                            item.setImage(image);
-                                            item.setHarga(Integer.parseInt(harga));
-
-                                            childItemList.add(item);
-                                            index++;
-                                        }
-                                        myCallback.onCallback(childItemList);
-                                    }
-                                });
-
-                            }
-                        }
-                    });
+                    callback.keys(key, progress);
                 }
             }
         });
-
-
     }
 
-    public interface MyCallbackChild {
-        void onCallback(List<ChildItem> childItemList);
+    private void getHistoryFoodDesc(String id, GetFoodDescCallback callback) {
+        Query queryOrderDataMenu = FirebaseFirestore.getInstance()
+                .collection("Pesanan")
+                .document(id)
+                .collection("Food");
+
+        descListener = queryOrderDataMenu.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+
+                if (value == null) return;
+
+                ArrayList<String> orderFoodID = new ArrayList<>();
+                ArrayList<String> menuCount = new ArrayList<>();
+                ArrayList<Boolean> statusReview = new ArrayList<>();
+
+                for (QueryDocumentSnapshot doc : value) {
+                    orderFoodID.add(doc.getString("FoodID"));
+                    menuCount.add(doc.getString("itemCount"));
+                    statusReview.add(doc.getBoolean("StatusReview"));
+                }
+
+                if (orderFoodID.isEmpty()) return;
+
+                callback.data(
+                        orderFoodID,
+                        menuCount,
+                        statusReview
+                );
+            }
+
+        });
     }
 
-    public interface MyCallbackParent {
-        void onCallback(List<ParentItem> parentItemList);
+    private void getProducts(GetProductsCallback callback) {
+        Query queryFoodData = FirebaseFirestore.getInstance()
+                .collection("Product");
+
+        productsListener = queryFoodData.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (value == null) return;
+
+                ArrayList<ChildItem> childItemList = new ArrayList<>();
+
+                for (int index = 0; index < value.size(); index++) {
+                    ChildItem item = new ChildItem();
+
+                    QueryDocumentSnapshot doc = (QueryDocumentSnapshot) value.getDocuments().get(index);
+
+                    String id = doc.getId();
+                    String nama = doc.getString("Nama");
+                    String harga = String.valueOf(doc.get("Harga"));
+                    String image = doc.getString("Image");
+
+                    item.setFoodID(id);
+                    item.setNama(nama);
+                    item.setImage(image);
+                    item.setHarga(Integer.parseInt(harga));
+
+                    childItemList.add(item);
+                }
+
+                Log.d(TAG, "child: " + childItemList);
+
+                callback.data(childItemList);
+            }
+        });
     }
+
+    @Override
+    public void onDestroyView() {
+        keysListener.remove();
+        descListener.remove();
+        productsListener.remove();
+        super.onDestroyView();
+    }
+
+    public interface OnDataCallback {
+        void onCallback(ChildItem item);
+    }
+
+    private interface GetProductsCallback {
+        void data(List<ChildItem> items);
+    }
+
+    private interface GetFoodDescCallback {
+        void data(List<String> orderFoodId, List<String> menuCounts, List<Boolean> statusReviews);
+    }
+
+    private interface GetKeysCallback {
+        void keys(String key, Boolean progress);
+    }
+
 }
 

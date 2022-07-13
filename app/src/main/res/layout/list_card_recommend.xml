@@ -92,6 +92,7 @@
                     android:id="@+id/rateReview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:maxLength="3"
                     android:fontFamily="@font/metropolis_medium"
                     android:text="5.0" />
 
@@ -125,27 +126,16 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/textView16"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="10dp"
-                android:fontFamily="@font/metropolis_black"
-                android:text="IDR "
-                android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout4" />
-
-            <TextView
                 android:id="@+id/priceFood"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/metropolis_black"
                 android:text="100.000"
                 android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="@+id/textView16"
-                app:layout_constraintStart_toEndOf="@+id/textView16"
-                app:layout_constraintTop_toTopOf="@+id/textView16" />
+                android:layout_marginStart="10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout4" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>

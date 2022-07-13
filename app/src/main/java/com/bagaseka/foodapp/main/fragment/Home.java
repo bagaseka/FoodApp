@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bagaseka.foodapp.component.adapter.ListFavoriteAdapter;
@@ -47,13 +48,13 @@ import java.util.List;
 public class Home extends Fragment {
 
     private RecyclerView nFoodRecommendRv, nFoodFavoriteRv, nFoodExplore;
-    private FirestoreRecyclerOptions<HomeMainList> options,favOption;
+    private FirestoreRecyclerOptions<HomeMainList> options,favOption,recOptions;
     private FirestoreRecyclerAdapter adapter, adapterRecommend,adapterFav;
     private ImageView cart;
     private TextView favoriteMenu,itemCountCart;
     private ConstraintLayout FavoriteLayout;
     private SearchView searchView;
-    private List<String> menuID;
+    private LinearLayout filterRice,filterRamen,filterAppetizer,filterDessert,filterDrink;
     private View v;
     private FirebaseAuth auth = FirebaseAuth.getInstance();
     private CarouselView promo;
@@ -68,10 +69,16 @@ public class Home extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         v = inflater.inflate(R.layout.fragment_home, container, false);
+
         FavoriteLayout = v.findViewById(R.id.FavoriteLayout);
         String userID = auth.getUid();
         itemCountCart = v.findViewById(R.id.itemCountCart);
         searchView = v.findViewById(R.id.searchView);
+        filterRice = v.findViewById(R.id.filterRice);
+        filterRamen = v.findViewById(R.id.filterRamen);
+        filterAppetizer = v.findViewById(R.id.filterAppetizer);
+        filterDessert = v.findViewById(R.id.filterDessert);
+        filterDrink = v.findViewById(R.id.filterDrink);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager( getActivity() );
         linearLayoutManager.setOrientation( LinearLayoutManager.VERTICAL );
@@ -85,14 +92,52 @@ public class Home extends Fragment {
         promo.setPageCount(imageCarousel.length);
         promo.setImageListener(imageListener);
 
-        RecyclerView(userID);
+        RecyclerViewInitial();
 
-        favoriteMenu= v.findViewById(R.id.favoriteMenu);
+        setRecyclerViewAllMenu("Ramen");
+        setRecyclerViewRecommend();
+        setRecyclerviewFavorite(userID);
+
         favoriteMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent moveWithDataIntent = new Intent(getContext(), Favorite.class);
                 startActivity(moveWithDataIntent);
+            }
+        });
+
+        filterRice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setRecyclerViewAllMenu("Rice");
+            }
+        });
+
+        filterRamen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setRecyclerViewAllMenu("Ramen");
+            }
+        });
+
+        filterAppetizer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setRecyclerViewAllMenu("Appetizer");
+            }
+        });
+
+        filterDessert.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setRecyclerViewAllMenu("Dessert");
+            }
+        });
+
+        filterDrink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setRecyclerViewAllMenu("Drink");
             }
         });
 
@@ -125,25 +170,34 @@ public class Home extends Fragment {
 
         }
     };
-    @Override
-    public void onStart() {
-        super.onStart();
-        adapter.startListening();
-        adapterRecommend.startListening();
+
+    public void setRecyclerViewRecommend(){
+        Query queryRecommend = FirebaseFirestore.getInstance()
+                .collection("Product");
+
+        recOptions = new FirestoreRecyclerOptions.Builder<HomeMainList>()
+                .setQuery(queryRecommend, new SnapshotParser<HomeMainList>() {
+                    @Override
+                    public HomeMainList parseSnapshot(@NonNull DocumentSnapshot snapshot) {
+                        /*Write the process you want to do when taking a snapshot*/
+                        String nama = snapshot.getString("Nama");
+                        String harga = String.valueOf(snapshot.get("Harga"));
+                        String image = snapshot.getString("Image");
+                        String id = snapshot.getId();
+                        HomeMainList List = new HomeMainList(nama,harga,image,id);
+                        return List;
+                    }
+                }).setLifecycleOwner(Home.this).build();
+
+        adapterRecommend = new ListMenuAdapter(options,R.layout.list_card_recommend);
+        nFoodRecommendRv.setAdapter(adapterRecommend);
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        adapter.stopListening();
-        adapterRecommend.stopListening();
-    }
-
-    public void RecyclerView(String userID){
-        RecyclerViewInitial();
+    public void setRecyclerViewAllMenu(String kategori){
 
         Query query = FirebaseFirestore.getInstance()
-                .collection("Product");
+                .collection("Product")
+                .whereEqualTo("Kategori",kategori);
 
         options = new FirestoreRecyclerOptions.Builder<HomeMainList>()
                 .setQuery(query, new SnapshotParser<HomeMainList>() {
@@ -157,8 +211,13 @@ public class Home extends Fragment {
                         HomeMainList List = new HomeMainList(nama,harga,image,id);
                         return List;
                     }
-                }).build();
+                }).setLifecycleOwner(Home.this).build();
 
+        adapter = new ListMenuAdapter(options,R.layout.list_card_horizontal);
+        nFoodExplore.setAdapter(adapter);
+    }
+
+    public void setRecyclerviewFavorite(String userID){
         Query queryFav = FirebaseFirestore.getInstance()
                 .collection("Akun").document(userID).collection("Favorite");
 
@@ -173,7 +232,8 @@ public class Home extends Fragment {
                     FavoriteLayout.setVisibility(View.VISIBLE);
 
                     Query favQuery = FirebaseFirestore.getInstance()
-                            .collection("Product");
+                            .collection("Product")
+                            .whereIn("FoodID", MenuID);
 
                     favOption = new FirestoreRecyclerOptions.Builder<HomeMainList>()
                             .setQuery(favQuery, new SnapshotParser<HomeMainList>() {
@@ -181,20 +241,16 @@ public class Home extends Fragment {
                                 public HomeMainList parseSnapshot(@NonNull DocumentSnapshot snapshot) {
                                     /*Write the process you want to do when taking a snapshot*/
                                     HomeMainList List = new HomeMainList();
-                                    for (int i=0; i<MenuID.size();i++){
-                                        if (MenuID.get(i).equals(snapshot.getId())){
-                                            String nama = snapshot.getString("Nama");
-                                            String harga = String.valueOf(snapshot.get("Harga"));
-                                            String image = snapshot.getString("Image");
-                                            String id = snapshot.getId();
+                                    String nama = snapshot.getString("Nama");
+                                    String harga = String.valueOf(snapshot.get("Harga"));
+                                    String image = snapshot.getString("Image");
+                                    String id = snapshot.getId();
 
-                                            List.setFoodID(id);
-                                            List.setNama(nama);
-                                            List.setImage(image);
-                                            List.setHarga(harga);
-                                            List.setMenuID(MenuID);
-                                        }
-                                    }
+                                    List.setFoodID(id);
+                                    List.setNama(nama);
+                                    List.setImage(image);
+                                    List.setHarga(harga);
+                                    List.setMenuID(MenuID);
                                     return List;
                                 }
                             }).setLifecycleOwner(Home.this).build();
@@ -206,19 +262,13 @@ public class Home extends Fragment {
                 }
             }
         });
-
-        adapter = new ListMenuAdapter(options,R.layout.list_card_horizontal);
-        adapterRecommend = new ListMenuAdapter(options,R.layout.list_card_recommend);
-
-        nFoodRecommendRv.setAdapter(adapterRecommend);
-        nFoodExplore.setAdapter(adapter);
     }
-
 
     public void RecyclerViewInitial(){
         nFoodRecommendRv = v.findViewById(R.id.recommendFoodRv);
         nFoodFavoriteRv = v.findViewById(R.id.newFoodRv);
         nFoodExplore = v.findViewById(R.id.DrinkRv);
+        favoriteMenu= v.findViewById(R.id.favoriteMenu);
 
         nFoodRecommendRv.setHasFixedSize(true);
         //nFoodFavoriteRv.setHasFixedSize(true);
@@ -226,7 +276,6 @@ public class Home extends Fragment {
         nFoodRecommendRv.setLayoutManager(new LinearLayoutManager(getContext(),RecyclerView.HORIZONTAL,false));
         nFoodFavoriteRv.setLayoutManager(new LinearLayoutManager(getContext(),RecyclerView.HORIZONTAL,false));
         nFoodExplore.setLayoutManager(new LinearLayoutManager(getContext(),RecyclerView.VERTICAL,false));
-
     }
     public void setCartItemCount(String userID){
 
@@ -247,4 +296,5 @@ public class Home extends Fragment {
             }
         });
     }
+
 }

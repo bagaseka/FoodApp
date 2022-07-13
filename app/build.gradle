@@ -40,6 +40,7 @@ dependencies {
     implementation "androidx.viewpager2:viewpager2:1.0.0"
     def lifecycle_version = "2.2.0"
 
+
     implementation 'com.firebaseui:firebase-ui-firestore:6.2.1'
     implementation 'com.google.firebase:firebase-firestore'
     implementation platform('com.google.firebase:firebase-bom:29.0.0')
