@@ -1,37 +1,30 @@
 package com.bagaseka.foodapp.main.fragment.review;
 
-import androidx.annotation.NonNull;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.TextView;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.ImageButton;
-import android.widget.TextView;
-
-import com.bagaseka.foodapp.IntroScreen;
-import com.bagaseka.foodapp.component.model.ReviewItem;
-import com.bagaseka.foodapp.signinsignup.SignUp;
-import com.example.foodapp.R;
 import com.bagaseka.foodapp.component.adapter.ListCustomerReviewAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.bagaseka.foodapp.component.model.ReviewItem;
+import com.example.foodapp.R;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.firebase.ui.firestore.SnapshotParser;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,12 +33,16 @@ public class CustomerReview extends AppCompatActivity implements View.OnClickLis
     private ImageButton back;
     private RecyclerView recyclerView;
     private FirestoreRecyclerOptions<ReviewItem> options;
-    private FirestoreRecyclerAdapter adapter;
-    private String foodID,userID;
+    private ListCustomerReviewAdapter adapter;
+    private String foodID, userID;
     private FirebaseAuth auth;
-    private TextView rating,counterReviewOrder;
+    private TextView rating, counterReviewOrder;
+
+    private ListenerRegistration dataReviewRegistration = null;
+    private ListenerRegistration dataAllReviewsRegistration = null;
 
     public static final String FOOD_ID = "food_id";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,79 +56,112 @@ public class CustomerReview extends AppCompatActivity implements View.OnClickLis
 
         recyclerView = findViewById(R.id.CustomerReviewRV);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(CustomerReview.this, RecyclerView.VERTICAL,false));
+        recyclerView.setLayoutManager(new LinearLayoutManager(CustomerReview.this, RecyclerView.VERTICAL, false));
+        adapter = new ListCustomerReviewAdapter();
+        recyclerView.setAdapter(adapter);
 
         back = findViewById(R.id.back);
         back.setOnClickListener(this);
-
-        Query userData = FirebaseFirestore.getInstance()
-                .collection("Feedback");
 
         Query dataReviewQuery = FirebaseFirestore.getInstance()
                 .collection("Feedback")
                 .whereEqualTo("FoodID", foodID);
 
-        dataReviewQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        dataReviewRegistration = dataReviewQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 int counter = 0;
                 float totalRating = 0;
-                for (QueryDocumentSnapshot doc : value){
+                for (QueryDocumentSnapshot doc : value) {
 
                     totalRating = totalRating + doc.getLong("Rating").floatValue();
                     counter++;
 
                 }
-                rating.setText(String.valueOf(totalRating/counter));
+                rating.setText(String.valueOf(totalRating / counter));
                 counterReviewOrder.setText(counter + " Times Order");
             }
         });
 
-        userData.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        getAllFeedback(new GetFeedbackCallback() {
             @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-
-                if (value == null) return;
-                List<String> userID = new ArrayList<>();
-                List<String> foodID = new ArrayList<>();
-                for (QueryDocumentSnapshot doc : value){
-                    userID.add(doc.getString("UserID"));
-                    foodID.add(doc.getString("FoodID"));
-                    //LoadDataIntoRecyclerview(foodID,nameUser,imageUser);
-                }
-
+            public void data(List<ReviewItem> items) {
+                getUserData(items, new GetFeedbackCallback() {
+                    @Override
+                    public void data(List<ReviewItem> items) {
+                        adapter.setData(items);
+                    }
+                });
             }
         });
-
-
     }
 
-    public void LoadDataIntoRecyclerview(String foodID, String name, String image){
-        Query customerReview = FirebaseFirestore.getInstance()
-                .collection("Feedback")
-                .whereEqualTo("FoodID", foodID);
-
-        options = new FirestoreRecyclerOptions.Builder<ReviewItem>()
-                .setQuery(customerReview, new SnapshotParser<ReviewItem>() {
-                    @NonNull
+    private void getUserData(List<ReviewItem> items, GetFeedbackCallback callback) {
+        FirebaseFirestore.getInstance()
+                .collection("Akun")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
-                    public ReviewItem parseSnapshot(@NonNull DocumentSnapshot snapshot) {
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if (value == null) return;
 
-                        ReviewItem List = new ReviewItem();
+                        ArrayList<ReviewItem> newItems = new ArrayList<>(items);
 
-                        List.setUserID(snapshot.getString("UserID"));
-                        List.setName(name);
-                        List.setDate(snapshot.getString("Date"));
-                        List.setRating(String.valueOf(snapshot.get("Rating")));
-                        List.setReview(snapshot.getString("Review"));
-                        List.setImage(image);
+                        for (int i = 0; i < newItems.size(); i++) {
+                            for (QueryDocumentSnapshot doc : value) {
+                                String userId = doc.getId();
+                                Log.d("User id",doc.getId());
+                                Log.d("User id review",newItems.get(i).getUserID());
+                                if (newItems.get(i).getUserID().equals(userId)) {
+                                    String name = doc.getString("name");
+                                    String image = doc.getString("image");
 
-                        return List;
+                                    newItems.get(i).setName(name);
+                                    newItems.get(i).setImage(image);
+                                }
+                            }
+                        }
+
+                        callback.data(newItems);
                     }
-                }).setLifecycleOwner(CustomerReview.this).build();
+                });
+    }
 
-        adapter = new ListCustomerReviewAdapter(options);
-        recyclerView.setAdapter(adapter);
+    private void getAllFeedback(GetFeedbackCallback callback) {
+        dataAllReviewsRegistration = FirebaseFirestore.getInstance()
+                .collection("Feedback")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if (value == null) return;
+
+                        ArrayList<ReviewItem> items = new ArrayList<>();
+
+                        for (QueryDocumentSnapshot doc : value) {
+                            ReviewItem item = new ReviewItem();
+
+                            String userId = doc.getString("UserID");
+                            String date = doc.getString("Date");
+                            String rating = String.valueOf(doc.get("Rating"));
+                            String review = doc.getString("Review");
+
+                            item.setUserID(userId);
+                            item.setDate(date);
+                            item.setRating(rating);
+                            item.setReview(review);
+
+                            items.add(item);
+                        }
+
+                        callback.data(items);
+                    }
+                });
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (dataReviewRegistration != null) dataReviewRegistration.remove();
+        if (dataAllReviewsRegistration != null) dataAllReviewsRegistration.remove();
+        super.onDestroy();
     }
 
     @Override
@@ -141,5 +171,9 @@ public class CustomerReview extends AppCompatActivity implements View.OnClickLis
                 finish();
                 break;
         }
+    }
+
+    private interface GetFeedbackCallback {
+        void data(List<ReviewItem> items);
     }
 }
