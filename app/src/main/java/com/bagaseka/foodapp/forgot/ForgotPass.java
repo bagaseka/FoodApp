@@ -42,8 +42,9 @@ public class ForgotPass extends AppCompatActivity implements View.OnClickListene
         if (v.getId() == R.id.back){
             moveIntent = new Intent(this, SignIn.class);
             startActivity(moveIntent);
+            overridePendingTransition(R.anim.anim_in_left, R.anim.anim_out_right);
         }else if(v.getId() == R.id.Send){
-            viewModel.forgotPassword(inputEmail.toString().trim());
+            viewModel.forgotPassword(inputEmail.getText().toString());
         }
     }
 }

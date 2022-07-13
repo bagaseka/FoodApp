@@ -52,8 +52,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/noItem"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:visibility="visible"
+        android:layout_height="match_parent"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/layout1"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout3">
 

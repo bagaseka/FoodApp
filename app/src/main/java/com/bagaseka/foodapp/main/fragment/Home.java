@@ -103,6 +103,7 @@ public class Home extends Fragment {
             public void onClick(View v) {
                 Intent moveWithDataIntent = new Intent(getContext(), Favorite.class);
                 startActivity(moveWithDataIntent);
+                requireActivity().overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
             }
         });
 
@@ -190,7 +191,7 @@ public class Home extends Fragment {
                     }
                 }).setLifecycleOwner(Home.this).build();
 
-        adapterRecommend = new ListMenuAdapter(options, R.layout.list_card_recommend);
+        adapterRecommend = new ListMenuAdapter(options, R.layout.list_card_recommend,getActivity());
         nFoodRecommendRv.setAdapter(adapterRecommend);
     }
 
@@ -214,7 +215,7 @@ public class Home extends Fragment {
                     }
                 }).setLifecycleOwner(Home.this).build();
 
-        adapter = new ListMenuAdapter(options, R.layout.list_card_horizontal);
+        adapter = new ListMenuAdapter(options, R.layout.list_card_horizontal,getActivity());
         nFoodExplore.setAdapter(adapter);
     }
 
@@ -259,7 +260,7 @@ public class Home extends Fragment {
                                     }
                                 }
                             }
-                            listFavoriteAdapter = new ListFavoriteAdapter(coursesArrayList,R.layout.list_card);
+                            listFavoriteAdapter = new ListFavoriteAdapter(coursesArrayList,R.layout.list_card,getActivity());
                             nFoodFavoriteRv.setAdapter(listFavoriteAdapter);
                         }
                     });
@@ -304,5 +305,7 @@ public class Home extends Fragment {
             }
         });
     }
+
+
 
 }

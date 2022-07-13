@@ -40,6 +40,7 @@ public class User extends Fragment {
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), MyReview.class);
                 startActivity(intent);
+                requireActivity().overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
             }
         });
 
@@ -49,6 +50,7 @@ public class User extends Fragment {
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), Favorite.class);
                 startActivity(intent);
+                requireActivity().overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
             }
         });
         Logout = v.findViewById(R.id.logout);
@@ -58,7 +60,7 @@ public class User extends Fragment {
                 viewModel.signOut();
                 Intent moveIntent2 = new Intent(getActivity(), SignIn.class);
                 startActivity(moveIntent2);
-
+                requireActivity().overridePendingTransition(R.anim.anim_in_left, R.anim.anim_out_right);
             }
         });
 

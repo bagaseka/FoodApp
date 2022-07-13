@@ -1,5 +1,6 @@
 package com.bagaseka.foodapp.component.adapter;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -43,9 +44,11 @@ import java.util.Map;
 public class ListMenuAdapter extends FirestoreRecyclerAdapter<HomeMainList, ListMenuAdapter.FoodViewHolder>  {
 
     private int layout;
+    private Activity mActivity;
 
-    public ListMenuAdapter(@NonNull FirestoreRecyclerOptions<HomeMainList> options, int layout) {
+    public ListMenuAdapter(@NonNull FirestoreRecyclerOptions<HomeMainList> options, int layout,Activity mActivity) {
         super(options);
+        this.mActivity=mActivity;
         this.layout = layout;
     }
 
@@ -74,6 +77,7 @@ public class ListMenuAdapter extends FirestoreRecyclerAdapter<HomeMainList, List
         ImageView favoriteFood;
         String idFood;
         DocumentReference Ref;
+
         public FoodViewHolder(@NonNull View itemView) {
             super(itemView);
             nameFood = itemView.findViewById(R.id.nameFood);
@@ -92,7 +96,7 @@ public class ListMenuAdapter extends FirestoreRecyclerAdapter<HomeMainList, List
                     Intent moveWithDataIntent = new Intent(v.getContext(), FoodDetail.class);
                     moveWithDataIntent.putExtra(FoodDetail.FOOD_ID, idFood);
                     v.getContext().startActivity(moveWithDataIntent);
-
+                    mActivity.overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
                 }
             });
 

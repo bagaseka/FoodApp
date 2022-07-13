@@ -36,6 +36,7 @@ public class SignUp extends AppCompatActivity implements View.OnClickListener {
                 if (firebaseUser != null){
                     Intent moveIntent = new Intent(SignUp.this, SignIn.class);
                     startActivity(moveIntent);
+                    overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
                 }
             }
         });
@@ -71,9 +72,11 @@ public class SignUp extends AppCompatActivity implements View.OnClickListener {
         }else if (v.getId() == R.id.back){
             moveIntent = new Intent(this, SignIn.class);
             startActivity(moveIntent);
+            overridePendingTransition(R.anim.anim_in_left, R.anim.anim_out_right);
         }else if (v.getId() == R.id.Login){
             moveIntent = new Intent(this, SignIn.class);
             startActivity(moveIntent);
+            overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
         }
     }
 

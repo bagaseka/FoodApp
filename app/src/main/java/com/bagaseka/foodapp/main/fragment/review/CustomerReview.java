@@ -63,6 +63,22 @@ public class CustomerReview extends AppCompatActivity implements View.OnClickLis
         back = findViewById(R.id.back);
         back.setOnClickListener(this);
 
+        getAllRating();
+
+        getAllFeedback(new GetFeedbackCallback() {
+            @Override
+            public void data(List<ReviewItem> items) {
+                getUserData(items, new GetFeedbackCallback() {
+                    @Override
+                    public void data(List<ReviewItem> items) {
+                        adapter.setData(items);
+                    }
+                });
+            }
+        });
+    }
+
+    private void getAllRating(){
         Query dataReviewQuery = FirebaseFirestore.getInstance()
                 .collection("Feedback")
                 .whereEqualTo("FoodID", foodID);
@@ -80,18 +96,6 @@ public class CustomerReview extends AppCompatActivity implements View.OnClickLis
                 }
                 rating.setText(String.valueOf(totalRating / counter));
                 counterReviewOrder.setText(counter + " Times Order");
-            }
-        });
-
-        getAllFeedback(new GetFeedbackCallback() {
-            @Override
-            public void data(List<ReviewItem> items) {
-                getUserData(items, new GetFeedbackCallback() {
-                    @Override
-                    public void data(List<ReviewItem> items) {
-                        adapter.setData(items);
-                    }
-                });
             }
         });
     }
@@ -169,6 +173,7 @@ public class CustomerReview extends AppCompatActivity implements View.OnClickLis
         switch (v.getId()) {
             case R.id.back:
                 finish();
+                overridePendingTransition(R.anim.anim_in_left, R.anim.anim_out_right);
                 break;
         }
     }

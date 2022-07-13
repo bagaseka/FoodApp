@@ -81,7 +81,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                     }
                 }).setLifecycleOwner(SearchActivity.this).build();
 
-        adapterSearch = new ListMenuAdapter(options,R.layout.list_card_search);
+        adapterSearch = new ListMenuAdapter(options,R.layout.list_card_search,this);
         nFoodSeachRv.setAdapter(adapterSearch);
     }
 

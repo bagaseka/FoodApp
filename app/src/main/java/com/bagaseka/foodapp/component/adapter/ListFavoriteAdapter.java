@@ -52,10 +52,12 @@ public class ListFavoriteAdapter extends RecyclerView.Adapter<ListFavoriteAdapte
     private ConstraintLayout FavoriteLayout;
     private int layout;
     private DocumentReference Ref;
+    private Activity mActivity;
 
-    public ListFavoriteAdapter(ArrayList<HomeMainList> favData, int layout) {
+    public ListFavoriteAdapter(ArrayList<HomeMainList> favData, int layout,Activity mActivity) {
         this.favData = favData;
         this.layout = layout;
+        this.mActivity=mActivity;
     }
 
     @NonNull
@@ -100,17 +102,6 @@ public class ListFavoriteAdapter extends RecyclerView.Adapter<ListFavoriteAdapte
 
 
                 }
-//                    else {
-//
-//                        Ref = FirebaseFirestore.getInstance()
-//                                .collection("Akun").document(userID)
-//                                .collection("Favorite").document(idFood);
-//                        Map<String, Object> Favorite = new HashMap<>();
-//                        Favorite.put("FoodID", idFood);
-//                        Ref.set(Favorite);
-//                        setSnackbar(v, R.color.Green, "Success add to favorite");
-//                        favoriteFood.setSelected(true);
-//                    }
             }
         });
     }
@@ -126,8 +117,6 @@ public class ListFavoriteAdapter extends RecyclerView.Adapter<ListFavoriteAdapte
         TextView nameFood, priceFood, itemCount, countReview, rateReview;
         ImageView imageFood, favoriteFood;
         String idFood;
-
-        //int positionItem = 0;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -145,16 +134,13 @@ public class ListFavoriteAdapter extends RecyclerView.Adapter<ListFavoriteAdapte
                     Intent moveWithDataIntent = new Intent(v.getContext(), FoodDetail.class);
                     moveWithDataIntent.putExtra(FoodDetail.FOOD_ID, idFood);
                     v.getContext().startActivity(moveWithDataIntent);
+                    mActivity.overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
                 }
             });
 
 
 
         }
-//
-//        public void positionItem(int position) {
-//            positionItem = position;
-//        }
 
         public void setNameFood(String name) {
             nameFood.setText(name);

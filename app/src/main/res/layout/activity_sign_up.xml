@@ -9,11 +9,11 @@
 
     <ImageButton
         android:id="@+id/back"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:layout_marginTop="20dp"
         android:layout_marginStart="20dp"
-        android:background="@color/BgLayout"
+        android:backgroundTint="@color/transparent"
         android:src="@drawable/back"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -145,6 +145,7 @@
         <ImageButton
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:background="@color/transparent"
             android:src="@drawable/ic_baseline_arrow_right_alt_24" />
     </androidx.appcompat.widget.LinearLayoutCompat>
 

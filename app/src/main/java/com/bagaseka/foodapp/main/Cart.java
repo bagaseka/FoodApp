@@ -95,6 +95,7 @@ public class Cart extends AppCompatActivity implements View.OnClickListener {
                 if (menuID.size() > 0){
                     recyclerView.setVisibility(View.VISIBLE);
                     layout1.setVisibility(View.VISIBLE);
+                    noItem.setVisibility(View.GONE);
                     Query queryProduct = FirebaseFirestore.getInstance()
                             .collection("Product");
 
@@ -145,15 +146,17 @@ public class Cart extends AppCompatActivity implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.back){
-            Intent intent = new Intent(Cart.this, MainActivity.class);
-            startActivity(intent);
+            finish();
+            overridePendingTransition(R.anim.anim_in_left, R.anim.anim_out_right);
         }else if(v.getId() == R.id.Checkout){
             finish();
             Intent intent = new Intent(Cart.this, Checkout.class);
             startActivity(intent);
+            overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
         }else if (v.getId() == R.id.MainButton){
             Intent intent = new Intent(Cart.this, MainActivity.class);
             startActivity(intent);
+            overridePendingTransition(R.anim.anim_in_left, R.anim.anim_out_right);
         }
     }
 

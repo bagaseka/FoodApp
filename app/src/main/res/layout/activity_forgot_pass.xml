@@ -5,13 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background"
-    android:padding="20dp"
     tools:context="com.bagaseka.foodapp.forgot.ForgotPass">
 
     <ImageButton
         android:id="@+id/back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
         android:background="@color/transparent"
         android:src="@drawable/back"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,6 +23,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Forgot password"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         android:textAlignment="textStart"
         android:layout_marginTop="20dp"
         style="@style/HeadLineText"
@@ -35,6 +38,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="87dp"
         android:fontFamily="@font/metropolis_medium"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         android:textColor="#000000"
         android:text="Please, enter your email address. You will receive a link to create a new password via email."
         app:layout_constraintStart_toStartOf="parent"
@@ -46,6 +51,10 @@
         android:layout_width="match_parent"
         android:layout_height="64dp"
         android:layout_marginTop="16dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         android:fontFamily="@font/metropolis_medium"
         android:hint="Email"
         android:inputType="textEmailAddress"
@@ -59,8 +68,8 @@
         android:layout_marginTop="55dp"
         android:fontFamily="@font/metropolis_medium"
         android:text="SEND"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/inputEmail"
+        app:layout_constraintStart_toStartOf="@+id/inputEmail"
         app:layout_constraintTop_toBottomOf="@+id/inputEmail" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

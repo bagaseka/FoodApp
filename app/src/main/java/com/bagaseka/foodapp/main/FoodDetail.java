@@ -167,6 +167,7 @@ public class FoodDetail extends AppCompatActivity implements View.OnClickListene
 
         }else if (v.getId() == R.id.back){
             finish();
+            overridePendingTransition(R.anim.anim_in_left, R.anim.anim_out_right);
         } else if (v.getId() == R.id.fav){
             if (fav.isSelected()){
 
@@ -195,9 +196,11 @@ public class FoodDetail extends AppCompatActivity implements View.OnClickListene
             Intent moveWithDataIntent = new Intent(v.getContext(), CustomerReview.class);
             moveWithDataIntent.putExtra(FoodDetail.FOOD_ID, foodID);
             startActivity(moveWithDataIntent);
+            overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
         }else if (v.getId() == R.id.cart){
             Intent moveIntent = new Intent(FoodDetail.this, Cart.class);
             startActivity(moveIntent);
+            overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
         }
     }
     public void setCartItemCount(String userID){

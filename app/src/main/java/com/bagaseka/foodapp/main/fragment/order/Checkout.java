@@ -223,6 +223,7 @@ public class Checkout extends AppCompatActivity implements View.OnClickListener 
         finish();
         Intent intent = new Intent(Checkout.this, Cart.class);
         startActivity(intent);
+        overridePendingTransition(R.anim.anim_in_left, R.anim.anim_out_right);
     }
 
     @Override
@@ -231,6 +232,7 @@ public class Checkout extends AppCompatActivity implements View.OnClickListener 
             finish();
             Intent intent = new Intent(Checkout.this, Cart.class);
             startActivity(intent);
+            overridePendingTransition(R.anim.anim_in_left, R.anim.anim_out_right);
         } else if (v.getId() == R.id.MoreFood){
             finish();
             Intent intent = new Intent(Checkout.this, MainActivity.class);

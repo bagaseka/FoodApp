@@ -85,7 +85,6 @@ public class AuthenticationRepository {
                 if (task.isSuccessful()){
                     if (auth.getCurrentUser().isEmailVerified()){
                         firebaseUserMutableLiveData.postValue(auth.getCurrentUser());
-
                     }else{
                         Toast.makeText(application, "Your Email Need Verification, Please Check Your Email!", Toast.LENGTH_SHORT).show();
                     }

@@ -45,6 +45,7 @@ public class SignIn extends AppCompatActivity implements View.OnClickListener {
                     if (auth.getCurrentUser().isEmailVerified()){
                         Intent moveIntent = new Intent(SignIn.this, MainActivity.class);
                         startActivity(moveIntent);
+                        overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
                     }
                 }
             }
@@ -79,19 +80,19 @@ public class SignIn extends AppCompatActivity implements View.OnClickListener {
             case R.id.ForgotPass:
                 moveIntent = new Intent(this, com.bagaseka.foodapp.forgot.ForgotPass.class);
                 startActivity(moveIntent);
-                //CustomIntent.customType(this, "right-to-left");
+                overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
                 break;
 
             case R.id.SignUp:
                 moveIntent = new Intent(this, SignUp.class);
                 startActivity(moveIntent);
-                //CustomIntent.customType(this, "right-to-left");
+                overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
                 break;
 
             case R.id.back:
                 moveIntent = new Intent(this, IntroScreen.class);
                 startActivity(moveIntent);
-                //CustomIntent.customType(this, "left-to-right");
+                overridePendingTransition(R.anim.anim_in_left, R.anim.anim_out_right);
                 break;
         }
     }

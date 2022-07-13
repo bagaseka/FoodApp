@@ -101,7 +101,9 @@ public class Favorite extends AppCompatActivity implements View.OnClickListener 
                                     }
                                 }
                             }
-                            listFavoriteAdapter = new ListFavoriteAdapter(coursesArrayList,R.layout.list_card_horizontal);
+                            listFavoriteAdapter = new ListFavoriteAdapter(
+                                    coursesArrayList,R.layout.list_card_horizontal,Favorite.this
+                            );
                             nFoodFavoriteRv.setAdapter(listFavoriteAdapter);
                         }
                     });
