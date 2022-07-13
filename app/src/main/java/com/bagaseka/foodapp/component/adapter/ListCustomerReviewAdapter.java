@@ -1,5 +1,6 @@
 package com.bagaseka.foodapp.component.adapter;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,38 +13,50 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bagaseka.foodapp.component.model.ReviewItem;
 import com.bumptech.glide.Glide;
 import com.example.foodapp.R;
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
-public class ListCustomerReviewAdapter extends FirestoreRecyclerAdapter<ReviewItem, ListCustomerReviewAdapter.FoodViewHolder> {
+public class ListCustomerReviewAdapter extends RecyclerView.Adapter<ListCustomerReviewAdapter.FoodViewHolder> {
 
-    public ListCustomerReviewAdapter(@NonNull FirestoreRecyclerOptions<ReviewItem> options) {
-        super(options);
-    }
+    private final ArrayList<ReviewItem> models = new ArrayList<>();
 
-    @Override
-    protected void onBindViewHolder(@NonNull FoodViewHolder holder, int position, @NonNull ReviewItem model) {
-        holder.setNameUser(model.getName());
-        holder.setDate(model.getDate());
-        holder.setRate(model.getRating());
-        holder.setReview(model.getReview());
-        if (!model.getImage().equals("null")){
-            holder.setImageUser(model.getImage());
-        }
+    @SuppressLint("NotifyDataSetChanged")
+    public void setData(List<ReviewItem> models) {
+        this.models.clear();
+        this.models.addAll(models);
+        notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public FoodViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_card_review, parent, false);
-
-        return new FoodViewHolder(view);
+        return new FoodViewHolder(LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.list_card_review, parent, false));
     }
 
-    public class FoodViewHolder extends RecyclerView.ViewHolder {
-        TextView nameUser,reviewRate,reviewDate,reviewComment;
+    @Override
+    public void onBindViewHolder(@NonNull FoodViewHolder holder, int position) {
+        ReviewItem model = models.get(position);
+
+        holder.setNameUser(model.getName());
+        holder.setDate(model.getDate());
+        holder.setRate(model.getRating());
+        holder.setReview(model.getReview());
+
+        if (model.getImage() != null) {
+            holder.setImageUser(model.getImage());
+        }
+    }
+
+    @Override
+    public int getItemCount() {
+        return models.size();
+    }
+
+    protected class FoodViewHolder extends RecyclerView.ViewHolder {
+        TextView nameUser, reviewRate, reviewDate, reviewComment;
         ImageView imageUser;
 
         public FoodViewHolder(@NonNull View itemView) {
@@ -54,27 +67,27 @@ public class ListCustomerReviewAdapter extends FirestoreRecyclerAdapter<ReviewIt
             reviewDate = itemView.findViewById(R.id.reviewDate);
             reviewComment = itemView.findViewById(R.id.reviewComment);
         }
-        public void setNameUser(String name){
+
+        public void setNameUser(String name) {
             nameUser.setText(name);
         }
 
-        public void setRate(String name){
+        public void setRate(String name) {
             reviewRate.setText(name);
         }
 
-        public void setDate(String name){
+        public void setDate(String name) {
             reviewDate.setText(name);
         }
 
-        public void setReview(String name){
+        public void setReview(String name) {
             reviewComment.setText(name);
         }
 
-
-        public void setImageUser(String image){
+        public void setImageUser(String image) {
             Glide.with(itemView.getContext())
                     .load(image)
-                    .centerCrop()
+                    .circleCrop()
                     .into(imageUser);
         }
     }
