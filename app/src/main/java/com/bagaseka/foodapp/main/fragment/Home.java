@@ -2,6 +2,12 @@ package com.bagaseka.foodapp.main.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,26 +17,17 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
 import com.bagaseka.foodapp.component.adapter.ListFavoriteAdapter;
+import com.bagaseka.foodapp.component.adapter.ListMenuAdapter;
+import com.bagaseka.foodapp.component.model.HomeMainList;
+import com.bagaseka.foodapp.main.Cart;
 import com.bagaseka.foodapp.main.Favorite;
+import com.bagaseka.foodapp.main.SearchActivity;
 import com.bumptech.glide.Glide;
 import com.example.foodapp.R;
-import com.bagaseka.foodapp.component.adapter.ListMenuAdapter;
-import com.bagaseka.foodapp.main.Cart;
-import com.bagaseka.foodapp.component.model.HomeMainList;
-import com.bagaseka.foodapp.main.SearchActivity;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.firebase.ui.firestore.SnapshotParser;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -48,17 +45,17 @@ import java.util.List;
 public class Home extends Fragment {
 
     private RecyclerView nFoodRecommendRv, nFoodFavoriteRv, nFoodExplore;
-    private FirestoreRecyclerOptions<HomeMainList> options,favOption,recOptions;
-    private FirestoreRecyclerAdapter adapter, adapterRecommend,adapterFav;
+    private FirestoreRecyclerOptions<HomeMainList> options, favOption, recOptions;
+    private FirestoreRecyclerAdapter adapter, adapterRecommend, adapterFav;
     private ImageView cart;
-    private TextView favoriteMenu,itemCountCart;
+    private TextView favoriteMenu, itemCountCart;
     private ConstraintLayout FavoriteLayout;
     private SearchView searchView;
-    private LinearLayout filterRice,filterRamen,filterAppetizer,filterDessert,filterDrink;
+    private LinearLayout filterRice, filterRamen, filterAppetizer, filterDessert, filterDrink;
     private View v;
     private FirebaseAuth auth = FirebaseAuth.getInstance();
     private CarouselView promo;
-    private String[] imageCarousel = {"https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Serba-Ekslusif-768x255.jpg","https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/03/Banner_Bagi-bagi-Semangat-Ramadan-768x256.jpg","https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Bebas-Ongkir-768x256.jpg","https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Kotak-Kejutan-768x224.jpg","https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Gajian-Ekstra-Ramadan-768x278.jpg"};
+    private String[] imageCarousel = {"https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Serba-Ekslusif-768x255.jpg", "https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/03/Banner_Bagi-bagi-Semangat-Ramadan-768x256.jpg", "https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Bebas-Ongkir-768x256.jpg", "https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Kotak-Kejutan-768x224.jpg", "https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Gajian-Ekstra-Ramadan-768x278.jpg"};
 
     public Home() {
         // Required empty public constructor
@@ -80,9 +77,9 @@ public class Home extends Fragment {
         filterDessert = v.findViewById(R.id.filterDessert);
         filterDrink = v.findViewById(R.id.filterDrink);
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager( getActivity() );
-        linearLayoutManager.setOrientation( LinearLayoutManager.VERTICAL );
-        linearLayoutManager.setAutoMeasureEnabled( true );
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        linearLayoutManager.setAutoMeasureEnabled(true);
 
         setCartItemCount(userID);
 
@@ -147,6 +144,7 @@ public class Home extends Fragment {
             public void onClick(View v) {
                 Intent moveIntent = new Intent(getContext(), Cart.class);
                 startActivity(moveIntent);
+                requireActivity().overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
             }
         });
 
@@ -171,7 +169,7 @@ public class Home extends Fragment {
         }
     };
 
-    public void setRecyclerViewRecommend(){
+    public void setRecyclerViewRecommend() {
         Query queryRecommend = FirebaseFirestore.getInstance()
                 .collection("Product");
 
@@ -184,20 +182,20 @@ public class Home extends Fragment {
                         String harga = String.valueOf(snapshot.get("Harga"));
                         String image = snapshot.getString("Image");
                         String id = snapshot.getId();
-                        HomeMainList List = new HomeMainList(nama,harga,image,id);
+                        HomeMainList List = new HomeMainList(nama, harga, image, id);
                         return List;
                     }
                 }).setLifecycleOwner(Home.this).build();
 
-        adapterRecommend = new ListMenuAdapter(options,R.layout.list_card_recommend);
+        adapterRecommend = new ListMenuAdapter(options, R.layout.list_card_recommend);
         nFoodRecommendRv.setAdapter(adapterRecommend);
     }
 
-    public void setRecyclerViewAllMenu(String kategori){
+    public void setRecyclerViewAllMenu(String kategori) {
 
         Query query = FirebaseFirestore.getInstance()
                 .collection("Product")
-                .whereEqualTo("Kategori",kategori);
+                .whereEqualTo("Kategori", kategori);
 
         options = new FirestoreRecyclerOptions.Builder<HomeMainList>()
                 .setQuery(query, new SnapshotParser<HomeMainList>() {
@@ -208,27 +206,27 @@ public class Home extends Fragment {
                         String harga = String.valueOf(snapshot.get("Harga"));
                         String image = snapshot.getString("Image");
                         String id = snapshot.getId();
-                        HomeMainList List = new HomeMainList(nama,harga,image,id);
+                        HomeMainList List = new HomeMainList(nama, harga, image, id);
                         return List;
                     }
                 }).setLifecycleOwner(Home.this).build();
 
-        adapter = new ListMenuAdapter(options,R.layout.list_card_horizontal);
+        adapter = new ListMenuAdapter(options, R.layout.list_card_horizontal);
         nFoodExplore.setAdapter(adapter);
     }
 
-    public void setRecyclerviewFavorite(String userID){
+    public void setRecyclerviewFavorite(String userID) {
         Query queryFav = FirebaseFirestore.getInstance()
                 .collection("Akun").document(userID).collection("Favorite");
 
         queryFav.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                List<String>  MenuID = new ArrayList<>();
+                List<String> MenuID = new ArrayList<>();
                 for (QueryDocumentSnapshot doc : value) {
                     MenuID.add(doc.getString("FoodID"));
                 }
-                if (MenuID.size() > 0){
+                if (MenuID.size() > 0) {
                     FavoriteLayout.setVisibility(View.VISIBLE);
 
                     Query favQuery = FirebaseFirestore.getInstance()
@@ -255,29 +253,30 @@ public class Home extends Fragment {
                                 }
                             }).setLifecycleOwner(Home.this).build();
 
-                    adapterFav = new ListFavoriteAdapter(favOption,R.layout.list_card);
+                    adapterFav = new ListFavoriteAdapter(favOption, R.layout.list_card);
                     nFoodFavoriteRv.setAdapter(adapterFav);
-                }else{
+                } else {
                     FavoriteLayout.setVisibility(View.GONE);
                 }
             }
         });
     }
 
-    public void RecyclerViewInitial(){
+    public void RecyclerViewInitial() {
         nFoodRecommendRv = v.findViewById(R.id.recommendFoodRv);
         nFoodFavoriteRv = v.findViewById(R.id.newFoodRv);
         nFoodExplore = v.findViewById(R.id.DrinkRv);
-        favoriteMenu= v.findViewById(R.id.favoriteMenu);
+        favoriteMenu = v.findViewById(R.id.favoriteMenu);
 
         nFoodRecommendRv.setHasFixedSize(true);
         //nFoodFavoriteRv.setHasFixedSize(true);
 
-        nFoodRecommendRv.setLayoutManager(new LinearLayoutManager(getContext(),RecyclerView.HORIZONTAL,false));
-        nFoodFavoriteRv.setLayoutManager(new LinearLayoutManager(getContext(),RecyclerView.HORIZONTAL,false));
-        nFoodExplore.setLayoutManager(new LinearLayoutManager(getContext(),RecyclerView.VERTICAL,false));
+        nFoodRecommendRv.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false));
+        nFoodFavoriteRv.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false));
+        nFoodExplore.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
     }
-    public void setCartItemCount(String userID){
+
+    public void setCartItemCount(String userID) {
 
         Query query = FirebaseFirestore.getInstance()
                 .collection("Cart").document(userID).collection("Food");

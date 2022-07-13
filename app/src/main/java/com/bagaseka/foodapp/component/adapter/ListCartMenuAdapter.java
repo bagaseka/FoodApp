@@ -65,7 +65,6 @@ public class ListCartMenuAdapter extends RecyclerView.Adapter<ListCartMenuAdapte
         holder.setImageFood(cart.getImage());
         holder.setFoodID(cart.getFoodID());
         holder.setItemCount(cart.getItemCount());
-        holder.positionItem(position);
         holder.setRating(cart.foodID);
         holder.setPriceFood(String.valueOf(Integer.parseInt(cart.getHarga()) * Integer.parseInt(cart.getItemCount())));
 
@@ -93,8 +92,8 @@ public class ListCartMenuAdapter extends RecyclerView.Adapter<ListCartMenuAdapte
                             .collection("Food").document(holder.idFood);
                     Ref.delete();
 
-                    notifyItemRemoved(holder.positionItem);
-                    cartData.remove(holder.positionItem);
+                    cartData.remove(holder.getAbsoluteAdapterPosition());
+                    notifyItemRemoved(holder.getAbsoluteAdapterPosition());
                 }else{
                     int sub = Integer.parseInt(cart.getHarga()) * holder.count;
                     holder.setPriceFood(String.valueOf(sub));
@@ -102,6 +101,20 @@ public class ListCartMenuAdapter extends RecyclerView.Adapter<ListCartMenuAdapte
                             ,Integer.parseInt(cart.getHarga())
                             ,false);
                 }
+            }
+        });
+
+        holder.delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DocumentReference Ref;
+                Ref = FirebaseFirestore.getInstance()
+                        .collection("Cart").document(userID)
+                        .collection("Food").document(holder.idFood);
+                Ref.delete();
+
+                cartData.remove( holder.getAbsoluteAdapterPosition());
+                notifyItemRemoved( holder.getAbsoluteAdapterPosition());
             }
         });
 
@@ -120,7 +133,8 @@ public class ListCartMenuAdapter extends RecyclerView.Adapter<ListCartMenuAdapte
         TextView nameFood,priceFood,itemCount,countReview,rateReview;
         ImageView imageFood,plus,minus,delete;
         String idFood;
-        int count = 0,positionItem = 0;
+        int count = 0;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             nameFood = itemView.findViewById(R.id.nameFood);
@@ -132,28 +146,12 @@ public class ListCartMenuAdapter extends RecyclerView.Adapter<ListCartMenuAdapte
             itemCount = itemView.findViewById(R.id.count);
             rateReview = itemView.findViewById(R.id.rateReview);
             countReview = itemView.findViewById(R.id.countReview);
-
-            delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    DocumentReference Ref;
-                    Ref = FirebaseFirestore.getInstance()
-                            .collection("Cart").document(userID)
-                            .collection("Food").document(idFood);
-                    Ref.delete();
-
-                    notifyItemRemoved(positionItem);
-                    cartData.remove(positionItem);
-                }
-            });
         }
+
         private String formatRupiah(Double number){
             Locale localeID = new Locale("in", "ID");
             NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
             return formatRupiah.format(number);
-        }
-        public void positionItem(int position){
-            positionItem = position;
         }
         public void setNameFood(String name){
             nameFood.setText(name);

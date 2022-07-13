@@ -24,7 +24,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class History extends Fragment {
 
@@ -34,7 +36,7 @@ public class History extends Fragment {
     private final OrderListChildAdapter childAdapter = new OrderListChildAdapter();
 
     private ListenerRegistration keysListener = null;
-    private ListenerRegistration descListener = null;
+    private Set<ListenerRegistration> descListener = new HashSet<>();
     private ListenerRegistration productsListener = null;
 
     public History() {
@@ -119,7 +121,7 @@ public class History extends Fragment {
                 .document(id)
                 .collection("Food");
 
-        descListener = queryOrderDataMenu.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        descListener.add(queryOrderDataMenu.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
 
@@ -144,7 +146,7 @@ public class History extends Fragment {
                 );
             }
 
-        });
+        }));
     }
 
     private void getProducts(GetProductsCallback callback) {
@@ -186,8 +188,14 @@ public class History extends Fragment {
     @Override
     public void onDestroyView() {
         keysListener.remove();
-        descListener.remove();
         productsListener.remove();
+
+        if (!descListener.isEmpty()) {
+            for (ListenerRegistration registration : descListener) {
+                registration.remove();
+            }
+        }
+
         super.onDestroyView();
     }
 
