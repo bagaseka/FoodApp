@@ -41,10 +41,12 @@ public class IntroScreen extends AppCompatActivity implements View.OnClickListen
             @Override
             public void onChanged(FirebaseUser firebaseUser) {
                 if (firebaseUser != null){
-                    if (auth.getCurrentUser().isEmailVerified()){
-                        Intent moveIntent = new Intent(IntroScreen.this, MainActivity.class);
-                        startActivity(moveIntent);
-                    }
+//                    if (auth.getCurrentUser().isEmailVerified()){
+//                        Intent moveIntent = new Intent(IntroScreen.this, MainActivity.class);
+//                        startActivity(moveIntent);
+//                    }
+                    Intent moveIntent = new Intent(IntroScreen.this, MainActivity.class);
+                    startActivity(moveIntent);
                 }
             }
         });

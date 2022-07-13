@@ -145,9 +145,11 @@ public class Favorite extends AppCompatActivity implements View.OnClickListener 
     public void onClick(View v) {
         if (v.getId() == R.id.back) {
             finish();
+            overridePendingTransition(R.anim.anim_in_left, R.anim.anim_out_right);
         }else if (v.getId() == R.id.cart) {
             Intent moveIntent = new Intent(v.getContext(), Cart.class);
             startActivity(moveIntent);
+            overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
         }
     }
 }

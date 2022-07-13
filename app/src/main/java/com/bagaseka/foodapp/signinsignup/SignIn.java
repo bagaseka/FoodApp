@@ -42,11 +42,14 @@ public class SignIn extends AppCompatActivity implements View.OnClickListener {
             @Override
             public void onChanged(FirebaseUser firebaseUser) {
                 if (firebaseUser != null){
-                    if (auth.getCurrentUser().isEmailVerified()){
-                        Intent moveIntent = new Intent(SignIn.this, MainActivity.class);
-                        startActivity(moveIntent);
-                        overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
-                    }
+//                    if (auth.getCurrentUser().isEmailVerified()){
+//                        Intent moveIntent = new Intent(SignIn.this, MainActivity.class);
+//                        startActivity(moveIntent);
+//                        overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
+//                    }
+                    Intent moveIntent = new Intent(SignIn.this, MainActivity.class);
+                    startActivity(moveIntent);
+                    overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
                 }
             }
         });

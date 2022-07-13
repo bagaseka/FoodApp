@@ -122,8 +122,8 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
 
         if (v.getId() == R.id.Submit){
 
-            if (Submit.getText().toString().equals("SetCompleted")){
-                Toast.makeText(v.getContext(), "Slebew", Toast.LENGTH_SHORT).show();
+            if (ratingBar.getRating() == 0.0 ){
+                //Toast.makeText(, "", Toast.LENGTH_SHORT).show();
             }else{
                 DocumentReference queryFoodID = FirebaseFirestore.getInstance()
                         .collection("Pesanan")
@@ -143,8 +143,8 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
                     cart.put("Review", inputReview.getText().toString());
                 }
                 addFeedback.set(cart);
+                this.dismiss();
             }
-            this.dismiss();
         }
     }
 

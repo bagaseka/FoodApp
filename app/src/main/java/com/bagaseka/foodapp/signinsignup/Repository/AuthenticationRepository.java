@@ -50,7 +50,7 @@ public class AuthenticationRepository {
             public void onComplete(@NonNull  Task<AuthResult> task) {
                 if (task.isSuccessful()){
                     firebaseUserMutableLiveData.postValue(auth.getCurrentUser());
-                    auth.getCurrentUser().sendEmailVerification();
+                    //auth.getCurrentUser().sendEmailVerification();
 
                     ref = FirebaseFirestore.getInstance().collection("Akun").document(auth.getUid().toString());
 
@@ -83,11 +83,12 @@ public class AuthenticationRepository {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()){
-                    if (auth.getCurrentUser().isEmailVerified()){
-                        firebaseUserMutableLiveData.postValue(auth.getCurrentUser());
-                    }else{
-                        Toast.makeText(application, "Your Email Need Verification, Please Check Your Email!", Toast.LENGTH_SHORT).show();
-                    }
+//                    if (auth.getCurrentUser().isEmailVerified()){
+//                        firebaseUserMutableLiveData.postValue(auth.getCurrentUser());
+//                    }else{
+//                        Toast.makeText(application, "Your Email Need Verification, Please Check Your Email!", Toast.LENGTH_SHORT).show();
+//                    }
+                    firebaseUserMutableLiveData.postValue(auth.getCurrentUser());
                 }else{
                     Toast.makeText(application, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }

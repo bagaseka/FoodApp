@@ -32,10 +32,8 @@ public class CustomerReview extends AppCompatActivity implements View.OnClickLis
 
     private ImageButton back;
     private RecyclerView recyclerView;
-    private FirestoreRecyclerOptions<ReviewItem> options;
     private ListCustomerReviewAdapter adapter;
-    private String foodID, userID;
-    private FirebaseAuth auth;
+    private String foodID;
     private TextView rating, counterReviewOrder;
 
     private ListenerRegistration dataReviewRegistration = null;
@@ -48,8 +46,6 @@ public class CustomerReview extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_customer_review);
         foodID = getIntent().getStringExtra(FOOD_ID);
-        auth = FirebaseAuth.getInstance();
-        userID = auth.getUid();
 
         rating = findViewById(R.id.reviewRate);
         counterReviewOrder = findViewById(R.id.counterReviewOrder);
