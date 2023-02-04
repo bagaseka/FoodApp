@@ -40,7 +40,7 @@ public class FoodDetail extends AppCompatActivity implements View.OnClickListene
     public static final String FOOD_ID = "food_id";
 
     private ImageView imageDetail,back, fav,cart;
-    private TextView nameDetail,rateReview,countReview,priceDetail,descripDetail,review,itemCountCart;
+    private TextView nameDetail,rateReview,countOrder,priceDetail,descripDetail,review,itemCountCart;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private DocumentReference docRef;
     private Button addToCart;
@@ -60,7 +60,7 @@ public class FoodDetail extends AppCompatActivity implements View.OnClickListene
         imageDetail = findViewById(R.id.imageDetail);
         nameDetail = findViewById(R.id.nameDetail);
         rateReview = findViewById(R.id.rateReview);
-        countReview = findViewById(R.id.countReview);
+        countOrder = findViewById(R.id.countOrder);
         priceDetail = findViewById(R.id.priceDetail);
         cart = findViewById(R.id.cart);
         descripDetail = findViewById(R.id.descripDetail);
@@ -91,8 +91,8 @@ public class FoodDetail extends AppCompatActivity implements View.OnClickListene
                             .centerCrop()
                             .into(imageDetail);
                     nameDetail.setText(document.getString("Nama"));
-
-                    setRating(document.getString("FoodID"));
+                    countOrder.setText(document.getLong("numOrder").toString() + " Orders");
+                    //setRating(document.getString("FoodID"));
 
                     priceDetail.setText(formatRupiah(Double.parseDouble(String.valueOf(document.get("Harga")))));
 
@@ -252,7 +252,6 @@ public class FoodDetail extends AppCompatActivity implements View.OnClickListene
                     ratingValue = String.valueOf(totalRating/counter);
                 }
                 rateReview.setText(ratingValue);
-                countReview.setText(counter + " Orders");
             }
         });
     }
@@ -264,32 +263,5 @@ public class FoodDetail extends AppCompatActivity implements View.OnClickListene
         snackbar.setTextColor(Color.WHITE);
         snackbar.show();
     }
-    public void setRating(String idFood){
 
-        Query dataReviewQuery = FirebaseFirestore.getInstance()
-                .collection("Feedback")
-                .whereEqualTo("FoodID", idFood);
-
-        dataReviewQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                int counter = 0;
-                float totalRating = 0;
-                String ratingValue = "0";
-
-                if (!value.isEmpty()){
-                    for (QueryDocumentSnapshot doc : value){
-
-                        totalRating = totalRating + doc.getLong("Rating").floatValue();
-                        counter++;
-
-                    }
-
-                    ratingValue = String.valueOf(totalRating/counter);
-                }
-                rateReview.setText(ratingValue);
-                countReview.setText(counter + " Orders");
-            }
-        });
-    }
 }

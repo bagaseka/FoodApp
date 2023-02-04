@@ -7,16 +7,18 @@ public class HomeMainList{
     public String harga;
     public String image;
     public String foodID;
+    public String countOrder;
     public String itemCount;
     public List<String> menuID;
 
     public HomeMainList() {}
 
-    public HomeMainList(String nama, String harga, String image, String foodID) {
+    public HomeMainList(String nama, String harga, String image, String foodID, String countOrder) {
         this.nama = nama;
         this.harga = harga;
         this.image = image;
         this.foodID = foodID;
+        this.countOrder = countOrder;
     }
 
     public List<String> getMenuID() {
@@ -65,6 +67,14 @@ public class HomeMainList{
 
     public void setItemCount(String itemCount) {
         this.itemCount = itemCount;
+    }
+
+    public String getCountOrder() {
+        return countOrder;
+    }
+
+    public void setCountOrder(String countOrder) {
+        this.countOrder = countOrder;
     }
 
 }

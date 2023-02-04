@@ -150,7 +150,7 @@
     </androidx.appcompat.widget.LinearLayoutCompat>
 
     <Button
-        android:id="@+id/SignIn"
+        android:id="@+id/SignUp"
         style="@style/MainButton"
         android:text="Create Account"
         android:layout_marginHorizontal="20dp"

@@ -101,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         if (orderSuccess){
             final Dialog dialog = new Dialog(MainActivity.this);
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             dialog.setContentView(R.layout.success_page);
 
             final Button done = dialog.findViewById(R.id.done);

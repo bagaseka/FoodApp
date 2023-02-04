@@ -1,6 +1,7 @@
 package com.bagaseka.foodapp.signinsignup.ViewModel;
 
 import android.app.Application;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -30,14 +31,14 @@ public class AuthViewModel extends AndroidViewModel {
         loggedStatus = repository.getUserLoggedMutableLiveData();
     }
 
-    public void register(String email, String pass, String user){
-        repository.register(email, pass, user);
+    public void register(View v, String email, String pass, String user){
+        repository.register(v,email, pass, user);
     }
     public void signIn(String email , String pass){
         repository.login(email, pass);
     }
-    public void forgotPassword(String email){
-        repository.forgotPassword(email);
+    public void forgotPassword(View v, String email){
+        repository.forgotPassword(v,email);
     }
     public void signOut(){
         repository.signOut();

@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bagaseka.foodapp.component.adapter.ListFavoriteAdapter;
 import com.bagaseka.foodapp.component.adapter.ListMenuAdapter;
 import com.bagaseka.foodapp.component.model.HomeMainList;
+import com.bagaseka.foodapp.component.model.RecommendItem;
 import com.bagaseka.foodapp.main.Cart;
 import com.bagaseka.foodapp.main.Favorite;
 import com.bagaseka.foodapp.main.SearchActivity;
@@ -59,6 +60,7 @@ public class Home extends Fragment {
     private CarouselView promo;
     private String[] imageCarousel = {"https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Serba-Ekslusif-768x255.jpg", "https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/03/Banner_Bagi-bagi-Semangat-Ramadan-768x256.jpg", "https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Bebas-Ongkir-768x256.jpg", "https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Kotak-Kejutan-768x224.jpg", "https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Gajian-Ekstra-Ramadan-768x278.jpg"};
     private ListFavoriteAdapter listFavoriteAdapter;
+    private String userID;
 
     public Home() {
         // Required empty public constructor
@@ -71,7 +73,7 @@ public class Home extends Fragment {
         v = inflater.inflate(R.layout.fragment_home, container, false);
 
         FavoriteLayout = v.findViewById(R.id.FavoriteLayout);
-        String userID = auth.getUid();
+        userID = auth.getUid();
         itemCountCart = v.findViewById(R.id.itemCountCart);
         searchView = v.findViewById(R.id.searchView);
         filterRice = v.findViewById(R.id.filterRice);
@@ -186,7 +188,8 @@ public class Home extends Fragment {
                         String harga = String.valueOf(snapshot.get("Harga"));
                         String image = snapshot.getString("Image");
                         String id = snapshot.getId();
-                        HomeMainList List = new HomeMainList(nama, harga, image, id);
+                        String numOrder = String.valueOf(snapshot.get("numOrder"));
+                        HomeMainList List = new HomeMainList(nama, harga, image, id, numOrder);
                         return List;
                     }
                 }).setLifecycleOwner(Home.this).build();
@@ -209,8 +212,9 @@ public class Home extends Fragment {
                         String nama = snapshot.getString("Nama");
                         String harga = String.valueOf(snapshot.get("Harga"));
                         String image = snapshot.getString("Image");
+                        String numOrder = String.valueOf(snapshot.get("numOrder"));
                         String id = snapshot.getId();
-                        HomeMainList List = new HomeMainList(nama, harga, image, id);
+                        HomeMainList List = new HomeMainList(nama, harga, image, id, numOrder);
                         return List;
                     }
                 }).setLifecycleOwner(Home.this).build();
@@ -246,6 +250,7 @@ public class Home extends Fragment {
                                         String nama = doc.getString("Nama");
                                         String harga = String.valueOf(doc.get("Harga"));
                                         String image = doc.getString("Image");
+                                        String numOrder = String.valueOf(doc.get("numOrder"));
                                         String id = doc.getId();
                                         HomeMainList List = new HomeMainList();
 
@@ -254,6 +259,7 @@ public class Home extends Fragment {
                                         List.setImage(image);
                                         List.setHarga(harga);
                                         List.setMenuID(menuID);
+                                        List.setCountOrder(numOrder);
 
                                         coursesArrayList.add(List);
                                         break;

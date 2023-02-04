@@ -5,7 +5,7 @@ android {
     buildToolsVersion "31.0.0"
     defaultConfig {
         applicationId "com.example.foodapp"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 31
         versionCode 1
         versionName "1.0"
@@ -54,4 +54,11 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"
     // LiveData
     implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
+
+    implementation 'com.google.firebase:firebase-storage:20.0.1'
+
+    implementation('com.journeyapps:zxing-android-embedded:4.3.0') { transitive = false }
+    implementation 'com.google.zxing:core:3.3.0'
+
+    implementation 'com.github.yuriy-budiyev:code-scanner:2.3.2'
 }

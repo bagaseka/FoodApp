@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 import com.bagaseka.foodapp.component.adapter.ListCartMenuAdapter;
 import com.bagaseka.foodapp.component.adapter.ListCheckOutAdapter;
 import com.bagaseka.foodapp.component.model.HomeMainList;
+import com.bumptech.glide.Glide;
 import com.example.foodapp.R;
 import com.bagaseka.foodapp.main.Cart;
 import com.bagaseka.foodapp.main.MainActivity;
@@ -23,6 +25,8 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.firebase.ui.firestore.SnapshotParser;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -32,9 +36,11 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Transaction;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -44,26 +50,38 @@ import java.util.Map;
 
 public class Checkout extends AppCompatActivity implements View.OnClickListener {
 
+    public static final String TABLE_ID = "table_id";
+
     private RecyclerView checkoutRV;
-    private TextView subPrice,ppn,total,moreFood;
+    private TextView subPrice,ppn,total,moreFood,table,name,orderID;
     private Button Order;
     private ImageButton back;
     private FirebaseAuth auth ;
     private List<String> menuID, dataCount;
-    private String userID;
+    private String userID,tableID;
     private ListCheckOutAdapter listCheckOutAdapter;
+    private ListenerRegistration dataUserRegistration = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_checkout);
+
+        tableID = getIntent().getStringExtra(TABLE_ID);
+
         checkoutRV = findViewById(R.id.orderList);
         subPrice = findViewById(R.id.subPrice);
         moreFood = findViewById(R.id.MoreFood);
+
+        name = findViewById(R.id.name);
+        table = findViewById(R.id.table);
+        orderID = findViewById(R.id.orderID);
+
         ppn = findViewById(R.id.ppn);
         total = findViewById(R.id.total);
         auth = FirebaseAuth.getInstance();
         userID = auth.getUid();
+        setInformationOrder();
 
         back = findViewById(R.id.back);
         back.setOnClickListener(this);
@@ -74,6 +92,18 @@ public class Checkout extends AppCompatActivity implements View.OnClickListener 
         Order = findViewById(R.id.BtnOrder);
 
         setDataIntoRecyclerview();
+
+        Order.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                orderProgres(tableID);
+                finish();
+                Intent intent = new Intent(Checkout.this, MainActivity.class);
+                intent.putExtra("orderSuccess", Boolean.valueOf(true));
+                startActivity(intent);
+
+            }
+        });
 
     }
 
@@ -130,17 +160,6 @@ public class Checkout extends AppCompatActivity implements View.OnClickListener 
                         }
                     });
 
-                    Order.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            orderProgres();
-                            finish();
-                            Intent intent = new Intent(Checkout.this, MainActivity.class);
-                            intent.putExtra("orderSuccess", Boolean.valueOf(true));
-                            startActivity(intent);
-
-                        }
-                    });
                 }else{
                     checkoutRV.setVisibility(View.GONE);
                 }
@@ -148,7 +167,7 @@ public class Checkout extends AppCompatActivity implements View.OnClickListener 
         });
     }
 
-    public void orderProgres(){
+    public void orderProgres(String tableID){
 
         String currentDateTimeString = java.text.DateFormat.getDateInstance().format(new Date());
 
@@ -184,7 +203,7 @@ public class Checkout extends AppCompatActivity implements View.OnClickListener 
                 }
 
                 Map<String, Object> dataPerson = new HashMap<>();
-                dataPerson.put("TableID", "SgdXfy32n1");
+                dataPerson.put("TableID", tableID);
                 dataPerson.put("Status", true);
                 dataPerson.put("UserID", userID);
                 dataPerson.put("MyOrderNumber", i);
@@ -207,6 +226,7 @@ public class Checkout extends AppCompatActivity implements View.OnClickListener 
             order.put("itemCount", dataCount.get(i));
             order.put("StatusReview",false);
 
+            addNumOrder(menuID.get(i));
             addFoodData.document(menuID.get(i)).set(order);
 
             FirebaseFirestore.getInstance()
@@ -215,6 +235,67 @@ public class Checkout extends AppCompatActivity implements View.OnClickListener 
                     .delete();
 
         }
+    }
+    public void addNumOrder(String foodID){
+
+        FirebaseFirestore dbase = FirebaseFirestore.getInstance();
+        DocumentReference docRef = dbase.collection("Product").document(foodID);
+
+        dbase.runTransaction(new Transaction.Function<Void>() {
+            @Override
+            public Void apply(Transaction transaction) throws FirebaseFirestoreException {
+                DocumentSnapshot snapshot = transaction.get(docRef);
+                int newCount = snapshot.getLong("numOrder").intValue() + 1;
+                transaction.update(docRef, "numOrder", newCount);
+                return null;
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                // Transaction completed successfully
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                // Transaction failed
+            }
+        });
+    }
+    public void setInformationOrder(){
+
+        orderID.setText("11/29/22-00001");
+
+        FirebaseFirestore.getInstance()
+                .collection("Akun").document(userID)
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                name.setText(document.getString("name"));
+                            }else {
+                                name.setText("No Name");
+                            }
+                        }
+                    }
+                });
+
+                FirebaseFirestore.getInstance().collection("Meja").document(tableID)
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                table.setText(document.getString("TableName"));
+                            }else{
+                                table.setText(tableID);
+                            }
+                        }
+                    }
+                });
+
     }
 
     @Override
@@ -239,4 +320,5 @@ public class Checkout extends AppCompatActivity implements View.OnClickListener 
             startActivity(intent);
         }
     }
+
 }

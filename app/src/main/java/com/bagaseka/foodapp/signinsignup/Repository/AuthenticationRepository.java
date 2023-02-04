@@ -1,13 +1,20 @@
 package com.bagaseka.foodapp.signinsignup.Repository;
 
 import android.app.Application;
+import android.content.Intent;
+import android.graphics.Color;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
 
+import com.bagaseka.foodapp.main.MainActivity;
+import com.example.foodapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -44,7 +51,7 @@ public class AuthenticationRepository {
         }
     }
 
-    public void register(String email , String pass , String user){
+    public void register(View v, String email , String pass , String user){
         auth.createUserWithEmailAndPassword(email , pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull  Task<AuthResult> task) {
@@ -63,15 +70,12 @@ public class AuthenticationRepository {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if(task.isSuccessful()){
-                                        Toast.makeText(application, "Register was success", Toast.LENGTH_SHORT).show();
+                                        setSnackbar(v, R.color.Green, "Register was success!");
                                     }else{
-                                        Toast.makeText(application, "Register is Fail", Toast.LENGTH_SHORT).show();
+                                        setSnackbar(v, R.color.colorPrimary, "Register is Fail!");
                                     }
                                 }
                             });
-
-                }else{
-                    Toast.makeText(application, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -89,19 +93,18 @@ public class AuthenticationRepository {
 //                        Toast.makeText(application, "Your Email Need Verification, Please Check Your Email!", Toast.LENGTH_SHORT).show();
 //                    }
                     firebaseUserMutableLiveData.postValue(auth.getCurrentUser());
-                }else{
-                    Toast.makeText(application, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+
                 }
             }
         });
     }
 
-    public void forgotPassword(String email){
+    public void forgotPassword(View v, String email){
         auth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    Toast.makeText(application, "Reset Password Was Sent To Email, Please Check Your Email!", Toast.LENGTH_SHORT).show();
+                    setSnackbar(v, R.color.Green, "Reset Password Was Sent To Email, Please Check Your Email!");
                 }
             }
         });
@@ -110,5 +113,14 @@ public class AuthenticationRepository {
     public void signOut(){
         auth.signOut();
         userLoggedMutableLiveData.postValue(true);
+    }
+
+    public void setSnackbar(View v, int color, String text) {
+        Snackbar snackbar = Snackbar.make(v, text,
+                Snackbar.LENGTH_SHORT);
+        snackbar.getView().setBackgroundColor(
+                ContextCompat.getColor(v.getContext(), color));
+        snackbar.setTextColor(Color.WHITE);
+        snackbar.show();
     }
 }

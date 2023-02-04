@@ -80,13 +80,14 @@ public class Favorite extends AppCompatActivity implements View.OnClickListener 
                     favQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            ArrayList<HomeMainList> coursesArrayList = new ArrayList<>();
+                            ArrayList<HomeMainList> menuFavList = new ArrayList<>();
                             for (DocumentSnapshot doc : task.getResult()){
                                 for (int i = 0;i<menuID.size();i++) {
                                     if (menuID.get(i).equals(doc.getString("FoodID"))){
                                         String nama = doc.getString("Nama");
                                         String harga = String.valueOf(doc.get("Harga"));
                                         String image = doc.getString("Image");
+                                        String numOrder = String.valueOf(doc.get("numOrder"));
                                         String id = doc.getId();
                                         HomeMainList List = new HomeMainList();
 
@@ -94,15 +95,16 @@ public class Favorite extends AppCompatActivity implements View.OnClickListener 
                                         List.setNama(nama);
                                         List.setImage(image);
                                         List.setHarga(harga);
+                                        List.setCountOrder(numOrder);
                                         List.setMenuID(menuID);
 
-                                        coursesArrayList.add(List);
+                                        menuFavList.add(List);
                                         break;
                                     }
                                 }
                             }
                             listFavoriteAdapter = new ListFavoriteAdapter(
-                                    coursesArrayList,R.layout.list_card_horizontal,Favorite.this
+                                    menuFavList,R.layout.list_card_horizontal,Favorite.this
                             );
                             nFoodFavoriteRv.setAdapter(listFavoriteAdapter);
                         }

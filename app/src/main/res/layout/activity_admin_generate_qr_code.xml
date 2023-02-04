@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    tools:context="com.bagaseka.foodapp.AdminGenerateQrCode">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="73dp"
+        android:background="@color/White"
+        android:elevation="4dp"
+        app:hintEnabled="false">
+
+        <EditText
+            android:id="@+id/inputNameTable"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            style="@style/EditText"
+            android:hint="Name of Table"
+            android:fontFamily="@font/metropolis_medium"
+            android:inputType="textEmailAddress" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/generateQR"
+        style="@style/MainButton"
+        android:layout_marginTop="32dp"
+        android:fontFamily="@font/metropolis_medium"
+        android:text="Generate"
+        android:layout_marginHorizontal="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ForgotPass" />
+
+    <ImageView
+        android:id="@+id/imageQR"
+        android:layout_marginTop="32dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scaleType="fitCenter"/>
+
+    <Button
+        android:id="@+id/downloadQR"
+        style="@style/MainButton"
+        android:layout_marginTop="32dp"
+        android:fontFamily="@font/metropolis_medium"
+        android:visibility="gone"
+        android:text="Upload QR"
+        android:layout_marginHorizontal="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ForgotPass" />
+
+</LinearLayout>

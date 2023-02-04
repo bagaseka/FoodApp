@@ -60,6 +60,7 @@ public class ListMenuAdapter extends FirestoreRecyclerAdapter<HomeMainList, List
         holder.setFoodID(model.foodID);
         holder.setFavorite(model.foodID);
         holder.setRating(model.foodID);
+        holder.setCountItem(model.getCountOrder());
     }
 
     @NonNull
@@ -72,7 +73,7 @@ public class ListMenuAdapter extends FirestoreRecyclerAdapter<HomeMainList, List
     }
 
     public class FoodViewHolder extends RecyclerView.ViewHolder {
-        TextView nameFood,priceFood,countReview,rateReview;
+        TextView nameFood,priceFood,countOrder,rateReview;
         ImageView imageFood;
         ImageView favoriteFood;
         String idFood;
@@ -85,7 +86,7 @@ public class ListMenuAdapter extends FirestoreRecyclerAdapter<HomeMainList, List
             imageFood = itemView.findViewById(R.id.imageFood);
             favoriteFood = itemView.findViewById(R.id.favoriteFood);
             rateReview = itemView.findViewById(R.id.rateReview);
-            countReview = itemView.findViewById(R.id.countReview);
+            countOrder = itemView.findViewById(R.id.countReview);
 
             FirebaseAuth auth = FirebaseAuth.getInstance();
             String userID = auth.getUid();
@@ -133,13 +134,14 @@ public class ListMenuAdapter extends FirestoreRecyclerAdapter<HomeMainList, List
         public void setPriceFood(String price){
             priceFood.setText(formatRupiah(Double.parseDouble(price)));
         }
-
         private String formatRupiah(Double number){
             Locale localeID = new Locale("in", "ID");
             NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
             return formatRupiah.format(number);
         }
-
+        public void setCountItem(String numOrder){
+            countOrder.setText( numOrder + " Orders");
+        }
         public void setImageFood(String image){
             Glide.with(itemView.getContext())
                     .load(image)
@@ -200,7 +202,6 @@ public class ListMenuAdapter extends FirestoreRecyclerAdapter<HomeMainList, List
                         ratingValue = String.valueOf(totalRating/counter);
                     }
                     rateReview.setText(ratingValue);
-                    countReview.setText(counter + " Orders");
                 }
             });
         }

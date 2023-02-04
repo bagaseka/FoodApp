@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.bagaseka.foodapp.component.adapter.ListCartMenuAdapter;
 import com.bagaseka.foodapp.component.model.HomeMainList;
 import com.bagaseka.foodapp.main.fragment.order.Checkout;
+import com.bagaseka.foodapp.main.fragment.order.SelectTable;
 import com.example.foodapp.R;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -114,6 +115,7 @@ public class Cart extends AppCompatActivity implements View.OnClickListener {
                                         String nama = doc.getString("Nama");
                                         String harga = String.valueOf(doc.get("Harga"));
                                         String image = doc.getString("Image");
+                                        String numOrder = String.valueOf(doc.get("numOrder"));
                                         String id = doc.getString("FoodID");
 
                                         String totalItemPrice = String.valueOf(Integer.parseInt(harga));
@@ -123,6 +125,7 @@ public class Cart extends AppCompatActivity implements View.OnClickListener {
                                         List.setFoodID(id);
                                         List.setHarga(totalItemPrice);
                                         List.setImage(image);
+                                        List.setCountOrder(numOrder);
                                         List.setItemCount(String.valueOf(itemCount));
 
                                         coursesArrayList.add(List);
@@ -152,7 +155,7 @@ public class Cart extends AppCompatActivity implements View.OnClickListener {
             overridePendingTransition(R.anim.anim_in_left, R.anim.anim_out_right);
         }else if(v.getId() == R.id.Checkout){
             finish();
-            Intent intent = new Intent(Cart.this, Checkout.class);
+            Intent intent = new Intent(Cart.this, SelectTable.class);
             startActivity(intent);
             overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
         }else if (v.getId() == R.id.MainButton){
@@ -161,5 +164,4 @@ public class Cart extends AppCompatActivity implements View.OnClickListener {
             overridePendingTransition(R.anim.anim_in_left, R.anim.anim_out_right);
         }
     }
-
 }

@@ -14,7 +14,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bagaseka.foodapp.AdminGenerateQrCode;
 import com.bagaseka.foodapp.main.Favorite;
+import com.bagaseka.foodapp.main.ScanQR;
 import com.bumptech.glide.Glide;
 import com.example.foodapp.R;
 import com.bagaseka.foodapp.main.fragment.review.MyReview;
@@ -31,11 +33,10 @@ import com.google.firebase.firestore.ListenerRegistration;
 public class User extends Fragment {
 
     private AuthViewModel viewModel;
-    private ConstraintLayout favoriteLayout,myReview,Logout;
+    private ConstraintLayout favoriteLayout,myReview,Logout,editProfile,changePassword;
     private TextView verifEmail,nameUser,emailUser;
     private FirebaseAuth auth;
     private ShapeableImageView imageUser;
-
     private ListenerRegistration dataUserRegistration = null;
 
     public User() {
@@ -114,6 +115,25 @@ public class User extends Fragment {
                 Intent moveIntent2 = new Intent(getActivity(), SignIn.class);
                 startActivity(moveIntent2);
                 requireActivity().overridePendingTransition(R.anim.anim_in_left, R.anim.anim_out_right);
+            }
+        });
+        editProfile = v.findViewById(R.id.constraintLayout7);
+        editProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), AdminGenerateQrCode.class);
+                startActivity(intent);
+                requireActivity().overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
+            }
+        });
+
+        changePassword = v.findViewById(R.id.changePasswordLayout);
+        changePassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), ScanQR.class);
+                startActivity(intent);
+                requireActivity().overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
             }
         });
 

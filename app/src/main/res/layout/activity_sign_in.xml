@@ -63,6 +63,7 @@
         android:background="@color/White"
         android:layout_marginTop="16dp"
         android:elevation="4dp"
+        app:passwordToggleEnabled="true"
         app:hintEnabled="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -115,7 +116,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ForgotPass" />
-
 
     <LinearLayout
         android:id="@+id/linearLayout"

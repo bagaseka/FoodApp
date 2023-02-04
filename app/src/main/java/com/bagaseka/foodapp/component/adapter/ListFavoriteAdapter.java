@@ -83,6 +83,7 @@ public class ListFavoriteAdapter extends RecyclerView.Adapter<ListFavoriteAdapte
         holder.setFoodID(favorite.getFoodID());
         holder.setRating(favorite.foodID);
         holder.setFavorite(favorite.foodID);
+        holder.setOrderCount(favorite.getCountOrder());
 
         holder.favoriteFood.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,7 +115,7 @@ public class ListFavoriteAdapter extends RecyclerView.Adapter<ListFavoriteAdapte
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView nameFood, priceFood, itemCount, countReview, rateReview;
+        TextView nameFood, priceFood, itemCount, countOrder, rateReview;
         ImageView imageFood, favoriteFood;
         String idFood;
 
@@ -125,7 +126,7 @@ public class ListFavoriteAdapter extends RecyclerView.Adapter<ListFavoriteAdapte
             imageFood = itemView.findViewById(R.id.imageFood);
             itemCount = itemView.findViewById(R.id.count);
             rateReview = itemView.findViewById(R.id.rateReview);
-            countReview = itemView.findViewById(R.id.countReview);
+            countOrder = itemView.findViewById(R.id.countReview);
             favoriteFood = itemView.findViewById(R.id.favoriteFood);
 
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -187,6 +188,8 @@ public class ListFavoriteAdapter extends RecyclerView.Adapter<ListFavoriteAdapte
             idFood = id;
         }
 
+        public void setOrderCount(String numOrder){countOrder.setText(numOrder + " Orders");}
+
         public void setRating(String idFood) {
 
             Query dataReviewQuery = FirebaseFirestore.getInstance()
@@ -211,7 +214,6 @@ public class ListFavoriteAdapter extends RecyclerView.Adapter<ListFavoriteAdapte
                         ratingValue = String.valueOf(totalRating / counter);
                     }
                     rateReview.setText(ratingValue);
-                    countReview.setText(counter + " Orders");
                 }
             });
         }

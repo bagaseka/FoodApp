@@ -75,8 +75,9 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                         String nama = snapshot.getString("Nama");
                         String harga = String.valueOf(snapshot.get("Harga"));
                         String image = snapshot.getString("Image");
+                        String numOrder = String.valueOf(snapshot.get("numOrder"));
                         String id = snapshot.getId();
-                        HomeMainList List = new HomeMainList(nama,harga,image,id);
+                        HomeMainList List = new HomeMainList(nama,harga,image,id,numOrder);
                         return List;
                     }
                 }).setLifecycleOwner(SearchActivity.this).build();

@@ -64,6 +64,7 @@ public class ListCartMenuAdapter extends RecyclerView.Adapter<ListCartMenuAdapte
         holder.setPriceFood(cart.getHarga());
         holder.setImageFood(cart.getImage());
         holder.setFoodID(cart.getFoodID());
+        holder.setCountOrder(cart.getCountOrder());
         holder.setItemCount(cart.getItemCount());
         holder.setRating(cart.foodID);
         holder.setPriceFood(String.valueOf(Integer.parseInt(cart.getHarga()) * Integer.parseInt(cart.getItemCount())));
@@ -130,7 +131,7 @@ public class ListCartMenuAdapter extends RecyclerView.Adapter<ListCartMenuAdapte
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView nameFood,priceFood,itemCount,countReview,rateReview;
+        TextView nameFood,priceFood,itemCount,countOrder,rateReview;
         ImageView imageFood,plus,minus,delete;
         String idFood;
         int count = 0;
@@ -145,7 +146,11 @@ public class ListCartMenuAdapter extends RecyclerView.Adapter<ListCartMenuAdapte
             minus = itemView.findViewById(R.id.minus);
             itemCount = itemView.findViewById(R.id.count);
             rateReview = itemView.findViewById(R.id.rateReview);
-            countReview = itemView.findViewById(R.id.countReview);
+            countOrder = itemView.findViewById(R.id.countReview);
+        }
+
+        public void setCountOrder(String countOrders){
+            countOrder.setText(countOrders + " Orders");
         }
 
         private String formatRupiah(Double number){
@@ -222,7 +227,6 @@ public class ListCartMenuAdapter extends RecyclerView.Adapter<ListCartMenuAdapte
                         ratingValue = String.valueOf(totalRating/counter);
                     }
                     rateReview.setText(ratingValue);
-                    countReview.setText(counter + " Orders");
                 }
             });
         }
