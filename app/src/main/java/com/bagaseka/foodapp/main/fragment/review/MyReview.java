@@ -72,7 +72,7 @@ public class MyReview extends AppCompatActivity implements View.OnClickListener 
     }
 
     private void getUserData(List<ReviewItem> items, GetFeedbackCallback callback) {
-        Log.d("itemLength",String.valueOf(items.size()));
+
         FirebaseFirestore.getInstance()
                 .collection("Product")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -104,6 +104,7 @@ public class MyReview extends AppCompatActivity implements View.OnClickListener 
         dataAllReviewsRegistration = FirebaseFirestore.getInstance()
                 .collection("Feedback")
                 .whereEqualTo("UserID", userID)
+                .orderBy("Date")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {

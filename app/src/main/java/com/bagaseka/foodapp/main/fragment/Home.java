@@ -58,7 +58,8 @@ public class Home extends Fragment {
     private View v;
     private FirebaseAuth auth = FirebaseAuth.getInstance();
     private CarouselView promo;
-    private String[] imageCarousel = {"https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Serba-Ekslusif-768x255.jpg", "https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/03/Banner_Bagi-bagi-Semangat-Ramadan-768x256.jpg", "https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Bebas-Ongkir-768x256.jpg", "https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Kotak-Kejutan-768x224.jpg", "https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Gajian-Ekstra-Ramadan-768x278.jpg"};
+    //private String[] imageCarousel = {"https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Serba-Ekslusif-768x255.jpg", "https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/03/Banner_Bagi-bagi-Semangat-Ramadan-768x256.jpg", "https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Bebas-Ongkir-768x256.jpg", "https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Kotak-Kejutan-768x224.jpg", "https://ecs7-tokopedia-net.cdn.ampproject.org/i/s/ecs7.tokopedia.net/blog-tokopedia-com/uploads/2020/04/Banner_Gajian-Ekstra-Ramadan-768x278.jpg"};
+    private String[] imageCarousel = {"https://firebasestorage.googleapis.com/v0/b/foodappta.appspot.com/o/Banner1-01.png?alt=media&token=081469a1-3611-47b0-83dd-25354835b969"};
     private ListFavoriteAdapter listFavoriteAdapter;
     private String userID;
 
@@ -170,6 +171,7 @@ public class Home extends Fragment {
         public void setImageForPosition(int position, ImageView imageView) {
             Glide.with(getContext())
                     .load(imageCarousel[position])
+                    .centerCrop()
                     .into(imageView);
 
         }
@@ -243,7 +245,7 @@ public class Home extends Fragment {
                     favQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            ArrayList<HomeMainList> coursesArrayList = new ArrayList<>();
+                            ArrayList<HomeMainList> favArrayList = new ArrayList<>();
                             for (DocumentSnapshot doc : task.getResult()){
                                 for (int i = 0;i<menuID.size();i++) {
                                     if (menuID.get(i).equals(doc.getString("FoodID"))){
@@ -261,12 +263,12 @@ public class Home extends Fragment {
                                         List.setMenuID(menuID);
                                         List.setCountOrder(numOrder);
 
-                                        coursesArrayList.add(List);
+                                        favArrayList.add(List);
                                         break;
                                     }
                                 }
                             }
-                            listFavoriteAdapter = new ListFavoriteAdapter(coursesArrayList,R.layout.list_card,getActivity());
+                            listFavoriteAdapter = new ListFavoriteAdapter(favArrayList,R.layout.list_card,getActivity());
                             nFoodFavoriteRv.setAdapter(listFavoriteAdapter);
                         }
                     });

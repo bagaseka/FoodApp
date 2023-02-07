@@ -13,33 +13,22 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.bumptech.glide.Glide;
 import com.example.foodapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.Transaction;
+import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -121,76 +110,143 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
     @Override
     public void onClick(View v) {
 
-        String currentDateTimeString = java.text.DateFormat.getDateInstance().format(new Date());
-
-        CollectionReference addFeedback = FirebaseFirestore.getInstance()
-                .collection("Feedback");
-
-        if (v.getId() == R.id.Submit){
-
-            if (ratingBar.getRating() == 0.0 ){
-                //Toast.makeText(, "", Toast.LENGTH_SHORT).show();
-            }else{
-
-                DocumentReference queryFoodID = FirebaseFirestore.getInstance()
-                        .collection("Pesanan")
-                        .document(foodOrderKey).collection("Food")
-                        .document(idFood);
-
-                queryFoodID.update("StatusReview", true);
-
-                Map<String, Object> review = new HashMap<>();
-                review.put("UserID", userID);
-                review.put("FoodID", idFood);
-                review.put("Date", currentDateTimeString);
-                review.put("Rating", ratingBar.getRating());
-                if (inputReview.getText().toString().isEmpty()){
-                    review.put("Review", "-");
-                }else{
-                    review.put("Review", inputReview.getText().toString());
-                }
-                addFeedback.document().set(review);
-
-                addRatingUserOnProduct(idFood,ratingBar.getRating());
-
-                this.dismiss();
-            }
-        }
+//        String currentDateTimeString = java.text.DateFormat.getDateInstance().format(new Date());
+//
+//        CollectionReference addFeedback = FirebaseFirestore.getInstance()
+//                .collection("Feedback");
+//
+//        if (v.getId() == R.id.Submit){
+//
+//            if (ratingBar.getRating() == 0.0 ){
+//                //Toast.makeText(, "", Toast.LENGTH_SHORT).show();
+//            }else{
+//
+//                DocumentReference queryFoodID = FirebaseFirestore.getInstance()
+//                        .collection("Pesanan")
+//                        .document(foodOrderKey).collection("Food")
+//                        .document(idFood);
+//
+//                queryFoodID.update("StatusReview", true);
+//
+//                Map<String, Object> review = new HashMap<>();
+//                review.put("UserID", userID);
+//                review.put("FoodID", idFood);
+//                review.put("Date", currentDateTimeString);
+//                review.put("Rating", ratingBar.getRating());
+//                if (inputReview.getText().toString().isEmpty()){
+//                    review.put("Review", "-");
+//                }else{
+//                    review.put("Review", inputReview.getText().toString());
+//                }
+//                addFeedback.document().set(review);
+//
+//                this.dismiss();
+//            }
+//        }
+        testAmbilData();
     }
 
-    public void addRatingUserOnProduct(String foodID, float rating){
-        DocumentReference addRatingOnProduct = FirebaseFirestore.getInstance()
-                .collection("Product").document(foodID)
-                .collection("Rating").document(userID);
+    public void testAmbilData(){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference dataRef = db.collection("Feedback");
 
-        addRatingOnProduct.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        dataRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                Map<String, Object> addOwnRatingOnProduct = new HashMap<>();
-
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    double averageRating = 0;
-                    int totalProduct = 1;
-                    if (document.exists()) {
-                        totalProduct = document.getLong("TotalOrder").intValue();
-                        averageRating = (rating + document.getDouble("RatingAverage")) / document.getLong("TotalOrder").intValue();
-                        addOwnRatingOnProduct.put("RatingAverage", averageRating);
-                        addOwnRatingOnProduct.put("TotalOrder", totalProduct);
-                        addRatingOnProduct.set(addOwnRatingOnProduct);
-                    }else {
-                        addOwnRatingOnProduct.put("RatingAverage", rating);
-                        addOwnRatingOnProduct.put("TotalOrder", totalProduct);
-                        addRatingOnProduct.set(addOwnRatingOnProduct);
+                    Map<String, Map<String, Float>> allData  = new HashMap<>();
+                    for (QueryDocumentSnapshot snapshot : task.getResult()) {
+                        String userId = snapshot.getString("UserID");
+                        String foodId = snapshot.getString("FoodID");
+                        float rating = snapshot.getLong("Rating").floatValue();
+
+                        Map<String, Float> userData = allData.get(userId);
+                        if (userData == null) {
+                            userData = new HashMap<>();
+                            allData.put(userId, userData);
+                        }
+                        userData.put(foodId, rating);
                     }
+                    prosesData(allData);
+
+
+                    // Proses data
                 } else {
-                    Log.d("Failure", "get failed with ", task.getException());
+                    // Handle error
                 }
+
             }
         });
+    }
 
+    public void prosesData(Map<String, Map<String, Float>> allData){
+        for (Map.Entry<String, Map<String, Float>> outerEntry : allData.entrySet()) {
+            Map<String, Float> a = outerEntry.getValue();
+            for (Map.Entry<String, Map<String, Float>> innerEntry : allData.entrySet()) {
+                Map<String, Float> b = innerEntry.getValue();
+                double similarity = cosineSimilarity(a, b);
+                Log.d("Similarity", "Similarity: " + similarity);
+            }
+        }
 
+//        String targetOuterKey = "a";
+//        String targetInnerKey = "a";
+//        float sum = 0;
+//        int count = 0;
+//        for (Map.Entry<String, Map<String, Float>> outerEntry : allData.entrySet()) {
+//            String outerKey = outerEntry.getKey();
+//            Map<String, Float> innerMap = outerEntry.getValue();
+//            Log.d("OuterKey", outerKey);
+//            for (Map.Entry<String, Float> innerEntry : innerMap.entrySet()) {
+//                String innerKey = innerEntry.getKey();
+//                Float value = innerEntry.getValue();
+//                Log.d("InnerKey", innerKey);
+//                Log.d("Value", value.toString());
+//                if (outerKey.equals(targetOuterKey) && innerKey.equals(targetInnerKey)) {
+//                    sum += value;
+//                    count++;
+//                }
+//            }
+//        }
+//        float average = sum / count;
+//        Log.d("Average", "Average: " + average);
+
+        //Log Data
+//        for (Map.Entry<String, Map<String, Float>> outerEntry : allData.entrySet()) {
+//            String outerKey = outerEntry.getKey();
+//            Map<String, Float> innerMap = outerEntry.getValue();
+//            for (Map.Entry<String, Float> innerEntry : innerMap.entrySet()) {
+//                String innerKey = innerEntry.getKey();
+//                Float value = innerEntry.getValue();
+//                Log.i("TAG", outerKey + " - " + innerKey + " : " + value);
+//            }
+//        }
+
+    }
+    private double cosineSimilarity(Map<String, Float> a, Map<String, Float> b) {
+        double dotProduct = 0.0;
+        double magnitudeA = 0.0;
+        double magnitudeB = 0.0;
+
+        for (Map.Entry<String, Float> entry : a.entrySet()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                dotProduct += entry.getValue() * b.getOrDefault(entry.getKey(), 0.0f);
+            }
+            magnitudeA += Math.pow(entry.getValue(), 2);
+        }
+
+        for (Map.Entry<String, Float> entry : b.entrySet()) {
+            magnitudeB += Math.pow(entry.getValue(), 2);
+        }
+
+        magnitudeA = Math.sqrt(magnitudeA);
+        magnitudeB = Math.sqrt(magnitudeB);
+
+        if (magnitudeA != 0.0 && magnitudeB != 0.0) {
+            return dotProduct / (magnitudeA * magnitudeB);
+        } else {
+            return 0.0;
+        }
     }
 
     public void updateList(OnSubmitListener listener){
@@ -201,22 +257,15 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
         void onclick();
     }
 
-    public double cosineSimilarity(double[] A, double[] B) {
-        if (A == null || B == null || A.length == 0 || B.length == 0 || A.length != B.length) {
-            return 2;
+    static Double calculateWeightedAverage(Map<Double, Integer> map) throws ArithmeticException {
+        double num = 0;
+        double denom = 0;
+        for (Map.Entry<Double, Integer> entry : map.entrySet()) {
+            num += entry.getKey() * entry.getValue();
+            denom += entry.getValue();
         }
 
-        double sumProduct = 0;
-        double sumASq = 0;
-        double sumBSq = 0;
-        for (int i = 0; i < A.length; i++) {
-            sumProduct += A[i]*B[i];
-            sumASq += A[i] * A[i];
-            sumBSq += B[i] * B[i];
-        }
-        if (sumASq == 0 && sumBSq == 0) {
-            return 2.0;
-        }
-        return sumProduct / (Math.sqrt(sumASq) * Math.sqrt(sumBSq));
+        return num / denom;
     }
+
 }
