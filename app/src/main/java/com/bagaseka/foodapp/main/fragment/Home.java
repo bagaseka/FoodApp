@@ -24,6 +24,7 @@ import com.bagaseka.foodapp.component.model.RecommendItem;
 import com.bagaseka.foodapp.main.Cart;
 import com.bagaseka.foodapp.main.Favorite;
 import com.bagaseka.foodapp.main.SearchActivity;
+import com.bagaseka.foodapp.main.recommended.TestRecommend;
 import com.bumptech.glide.Glide;
 import com.example.foodapp.R;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
@@ -52,7 +53,7 @@ public class Home extends Fragment {
     private FirestoreRecyclerAdapter adapter, adapterRecommend;
     private ImageView cart;
     private TextView favoriteMenu, itemCountCart;
-    private ConstraintLayout FavoriteLayout;
+    private ConstraintLayout FavoriteLayout,reccomendLayout;
     private SearchView searchView;
     private LinearLayout filterRice, filterRamen, filterAppetizer, filterDessert, filterDrink;
     private View v;
@@ -74,6 +75,7 @@ public class Home extends Fragment {
         v = inflater.inflate(R.layout.fragment_home, container, false);
 
         FavoriteLayout = v.findViewById(R.id.FavoriteLayout);
+        reccomendLayout = v.findViewById(R.id.reccomendLayout);
         userID = auth.getUid();
         itemCountCart = v.findViewById(R.id.itemCountCart);
         searchView = v.findViewById(R.id.searchView);
@@ -178,26 +180,46 @@ public class Home extends Fragment {
     };
 
     public void setRecyclerViewRecommend() {
-        Query queryRecommend = FirebaseFirestore.getInstance()
-                .collection("Product");
 
-        recOptions = new FirestoreRecyclerOptions.Builder<HomeMainList>()
-                .setQuery(queryRecommend, new SnapshotParser<HomeMainList>() {
-                    @Override
-                    public HomeMainList parseSnapshot(@NonNull DocumentSnapshot snapshot) {
-                        /*Write the process you want to do when taking a snapshot*/
-                        String nama = snapshot.getString("Nama");
-                        String harga = String.valueOf(snapshot.get("Harga"));
-                        String image = snapshot.getString("Image");
-                        String id = snapshot.getId();
-                        String numOrder = String.valueOf(snapshot.get("numOrder"));
-                        HomeMainList List = new HomeMainList(nama, harga, image, id, numOrder);
-                        return List;
-                    }
-                }).setLifecycleOwner(Home.this).build();
+            FirebaseFirestore.getInstance()
+                    .collection("Reccomend").document(userID)
+                    .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-        adapterRecommend = new ListMenuAdapter(options, R.layout.list_card_recommend,getActivity());
-        nFoodRecommendRv.setAdapter(adapterRecommend);
+                            DocumentSnapshot document = task.getResult();
+                            reccomendLayout.setVisibility(View.VISIBLE);
+                            if (document.exists()){
+
+                                List<String> foodRec = (List<String>) document.get("FoodID");
+
+                                Query query = FirebaseFirestore.getInstance()
+                                        .collection("Product")
+                                        .whereIn("FoodID",foodRec);
+
+                                options = new FirestoreRecyclerOptions.Builder<HomeMainList>()
+                                        .setQuery(query, new SnapshotParser<HomeMainList>() {
+                                            @Override
+                                            public HomeMainList parseSnapshot(@NonNull DocumentSnapshot snapshot) {
+                                                /*Write the process you want to do when taking a snapshot*/
+                                                String nama = snapshot.getString("Nama");
+                                                String harga = String.valueOf(snapshot.get("Harga"));
+                                                String image = snapshot.getString("Image");
+                                                String id = snapshot.getId();
+                                                String numOrder = String.valueOf(snapshot.get("numOrder"));
+                                                HomeMainList List = new HomeMainList(nama, harga, image, id, numOrder);
+                                                return List;
+                                            }
+                                        }).setLifecycleOwner(Home.this).build();
+
+                                adapterRecommend = new ListMenuAdapter(options, R.layout.list_card_recommend,getActivity());
+                                nFoodRecommendRv.setAdapter(adapterRecommend);
+                            }else{
+                                reccomendLayout.setVisibility(View.GONE);
+                            }
+                        }
+                    });
+
     }
 
     public void setRecyclerViewAllMenu(String kategori) {
@@ -225,7 +247,7 @@ public class Home extends Fragment {
         nFoodExplore.setAdapter(adapter);
     }
 
-    public void setRecyclerviewFavorite(String userID) {
+    public void setRecyclerviewFavorite(String userID){
         Query queryFav = FirebaseFirestore.getInstance()
                 .collection("Akun").document(userID).collection("Favorite");
 

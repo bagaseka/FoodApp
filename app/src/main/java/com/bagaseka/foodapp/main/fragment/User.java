@@ -68,6 +68,11 @@ public class User extends Fragment {
                                     .load(value.getString("image"))
                                     .centerCrop()
                                     .into(imageUser);
+                        }else{
+                            Glide.with(getContext())
+                                    .load(R.drawable.man)
+                                    .centerCrop()
+                                    .into(imageUser);
                         }
                     }
                 });

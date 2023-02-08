@@ -210,6 +210,7 @@
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:paddingHorizontal="13dp"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/Devider3">
@@ -262,6 +263,7 @@
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:paddingHorizontal="13dp"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/Devider3">
@@ -345,7 +347,7 @@
                     android:layout_alignParentTop="true"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentBottom="true"
-                    android:src="@drawable/user_fav"
+                    android:src="@drawable/logout"
                     app:tint="@color/White" />
             </RelativeLayout>
 

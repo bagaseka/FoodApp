@@ -19,9 +19,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.bagaseka.foodapp.component.adapter.ListMenuAdapter;
+import com.bagaseka.foodapp.component.model.HomeMainList;
+import com.bagaseka.foodapp.main.fragment.Home;
 import com.bumptech.glide.Glide;
 import com.example.foodapp.R;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.firebase.ui.firestore.SnapshotParser;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -29,11 +35,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 public class ReviewDialog extends BottomSheetDialogFragment implements View.OnClickListener {
 
@@ -120,39 +132,39 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
     @Override
     public void onClick(View v) {
 
-//        String currentDateTimeString = java.text.DateFormat.getDateInstance().format(new Date());
-//
-//        CollectionReference addFeedback = FirebaseFirestore.getInstance()
-//                .collection("Feedback");
-//
-//        if (v.getId() == R.id.Submit){
-//
-//            if (ratingBar.getRating() == 0.0 ){
-//                //Toast.makeText(, "", Toast.LENGTH_SHORT).show();
-//            }else{
-//
-//                DocumentReference queryFoodID = FirebaseFirestore.getInstance()
-//                        .collection("Pesanan")
-//                        .document(foodOrderKey).collection("Food")
-//                        .document(idFood);
-//
-//                queryFoodID.update("StatusReview", true);
-//
-//                Map<String, Object> review = new HashMap<>();
-//                review.put("UserID", userID);
-//                review.put("FoodID", idFood);
-//                review.put("Date", currentDateTimeString);
-//                review.put("Rating", ratingBar.getRating());
-//                if (inputReview.getText().toString().isEmpty()){
-//                    review.put("Review", "-");
-//                }else{
-//                    review.put("Review", inputReview.getText().toString());
-//                }
-//                addFeedback.document().set(review);
-//
-//                this.dismiss();
-//            }
-//        }
+        String currentDateTimeString = java.text.DateFormat.getDateInstance().format(new Date());
+
+        CollectionReference addFeedback = FirebaseFirestore.getInstance()
+                .collection("Feedback");
+
+        if (v.getId() == R.id.Submit){
+
+            if (ratingBar.getRating() == 0.0 ){
+                //Toast.makeText(, "", Toast.LENGTH_SHORT).show();
+            }else{
+
+                DocumentReference queryFoodID = FirebaseFirestore.getInstance()
+                        .collection("Pesanan")
+                        .document(foodOrderKey).collection("Food")
+                        .document(idFood);
+
+                queryFoodID.update("StatusReview", true);
+
+                Map<String, Object> review = new HashMap<>();
+                review.put("UserID", userID);
+                review.put("FoodID", idFood);
+                review.put("Date", currentDateTimeString);
+                review.put("Rating", ratingBar.getRating());
+                if (inputReview.getText().toString().isEmpty()){
+                    review.put("Review", "-");
+                }else{
+                    review.put("Review", inputReview.getText().toString());
+                }
+                addFeedback.document().set(review);
+
+                this.dismiss();
+            }
+        }
         getDataFromFirestore();
     }
 
@@ -272,12 +284,17 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference dataRef = db.collection("Feedback");
 
+        DocumentReference docRef = db.collection("Reccomend").document(userID);
+
         dataRef.whereNotIn("FoodID",exceptID)
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     Map<String, Map<String, Double>> allData  = new HashMap<>();
+
+                    Map<String, Double> reccomend = new HashMap<>();
+
                     for (QueryDocumentSnapshot snapshot : task.getResult()) {
                         String userId = snapshot.getString("UserID");
                         String foodId = snapshot.getString("FoodID");
@@ -304,23 +321,88 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
                             values.put(key,value);
                         }
 
+                        reccomend.put(outerMap.getKey(),calculate(values,weighted));
 
                         Log.d("123TAG", "Final: " + calculate(values,weighted));
 
                     }
 
-                    for (Map.Entry<String, Double> entry : weighted.entrySet()) {
+                    for (Map.Entry<String, Double> entry : reccomend.entrySet()) {
                         Log.d("123TAG_weight", "Key: " + entry.getKey() + " Value: " + entry.getValue());
                     }
 
-                    //`----------------------------
+                    // Create a list of Map entries
+                    ArrayList<Map.Entry<String, Double>> entryList = new ArrayList<>(reccomend.entrySet());
 
+                    // Sort the list of entries by value in descending order
+                    Collections.sort(entryList, new Comparator<Map.Entry<String, Double>>() {
+                        @Override
+                        public int compare(Map.Entry<String, Double> o1, Map.Entry<String, Double> o2) {
+                            return o2.getValue().compareTo(o1.getValue());
+                        }
+                    });
+
+                    // Define the array to store the keys with the highest values
+                    ArrayList<String> highValueKeys = new ArrayList<>();
+
+                    // Loop through the sorted list of entries and add the keys with values greater than 4.0 to the array
+                    for (Map.Entry<String, Double> entry : entryList) {
+                        if (entry.getValue() > 4.0) {
+                            highValueKeys.add(entry.getKey());
+                            if (highValueKeys.size() >= 5) {
+                                break;
+                            }
+                        }
+                    }
+
+                    for (String key : highValueKeys) {
+                        Log.d("456TAG_array", "Key: " + key);
+                    }
+
+                    addToFirestore(highValueKeys);
 
 
                 }
             }
         });
     }
+
+    public void addToFirestore(ArrayList<String> highValueKeys){
+        FirebaseFirestore.getInstance()
+                .collection("Recommend").document(userID)
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()){
+
+                            DocumentReference docRef = FirebaseFirestore.getInstance()
+                                    .collection("Reccomend").document(userID);
+
+                            docRef.update("FoodID", highValueKeys);
+
+                        }else{
+
+                            Map<String, Object> docData = new HashMap<>();
+                            docData.put("FoodID", highValueKeys);
+
+                            FirebaseFirestore.getInstance()
+                                    .collection("Reccomend")
+                                    .document(userID)
+                                    .set(docData)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+
+                                        }
+                                    });
+
+                        }
+
+                    }
+                });
+    }
+
 
     private double cosineSimilarity(Map<String, Float> a, Map<String, Float> b) {
         double dotProduct = 0.0;
