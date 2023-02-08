@@ -105,6 +105,8 @@ public class ListCartMenuAdapter extends RecyclerView.Adapter<ListCartMenuAdapte
             }
         });
 
+        finalTotal = subtotal;
+
         holder.delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -118,8 +120,6 @@ public class ListCartMenuAdapter extends RecyclerView.Adapter<ListCartMenuAdapte
                 notifyItemRemoved( holder.getAbsoluteAdapterPosition());
             }
         });
-
-        finalTotal = subtotal;
 
         textviewTotalExpense.setText(holder.formatRupiah(Double.parseDouble(String.valueOf(finalTotal))));
     }
@@ -185,6 +185,8 @@ public class ListCartMenuAdapter extends RecyclerView.Adapter<ListCartMenuAdapte
             }else{
                 if (count >= 1){
                     subtotal  = subtotal - price;
+                }else{
+                    subtotal = 0;
                 }
             }
 

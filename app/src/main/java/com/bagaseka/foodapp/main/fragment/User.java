@@ -121,9 +121,9 @@ public class User extends Fragment {
         editProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), AdminGenerateQrCode.class);
-                startActivity(intent);
-                requireActivity().overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
+//                Intent intent = new Intent(getActivity(), AdminGenerateQrCode.class);
+//                startActivity(intent);
+//                requireActivity().overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
             }
         });
 
@@ -131,9 +131,9 @@ public class User extends Fragment {
         changePassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), ScanQR.class);
-                startActivity(intent);
-                requireActivity().overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
+//                Intent intent = new Intent(getActivity(), ScanQR.class);
+//                startActivity(intent);
+//                requireActivity().overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
             }
         });
 

@@ -1,5 +1,7 @@
 package com.bagaseka.foodapp.component;
 
+import static com.google.common.collect.Sets.union;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,12 +27,20 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 public class ReviewDialog extends BottomSheetDialogFragment implements View.OnClickListener {
 
@@ -143,10 +153,12 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
 //                this.dismiss();
 //            }
 //        }
-        testAmbilData();
+        getDataFromFirestore();
     }
 
-    public void testAmbilData(){
+    //---------------------------------------------------------
+
+    public void getDataFromFirestore(){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference dataRef = db.collection("Feedback");
 
@@ -168,74 +180,167 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
                         userData.put(foodId, rating);
                     }
                     prosesData(allData);
-
-
-                    // Proses data
-                } else {
-                    // Handle error
                 }
 
             }
         });
     }
 
-    public void prosesData(Map<String, Map<String, Float>> allData){
-        for (Map.Entry<String, Map<String, Float>> outerEntry : allData.entrySet()) {
-            Map<String, Float> a = outerEntry.getValue();
-            for (Map.Entry<String, Map<String, Float>> innerEntry : allData.entrySet()) {
-                Map<String, Float> b = innerEntry.getValue();
-                double similarity = cosineSimilarity(a, b);
-                Log.d("Similarity", "Similarity: " + similarity);
+    public static void logMap(Map<String, Float> map , String TAG) {
+        for (Map.Entry<String, Float> entry : map.entrySet()) {
+            Log.d(TAG, entry.getKey() + " : " + entry.getValue());
+        }
+    }
+    //--------------
+
+    public static Map<String, Float> filterMapA(Map<String, Float> mapA, Map<String, Float> mapB) {
+        Map<String, Float> filteredMap = new HashMap<>();
+
+        Set<String> keySetA = mapA.keySet();
+        Set<String> keySetB = mapB.keySet();
+
+        for (String keyA : keySetA) {
+            if (keySetB.contains(keyA)) {
+                filteredMap.put(keyA, mapA.get(keyA));
             }
         }
 
-//        String targetOuterKey = "a";
-//        String targetInnerKey = "a";
-//        float sum = 0;
-//        int count = 0;
-//        for (Map.Entry<String, Map<String, Float>> outerEntry : allData.entrySet()) {
-//            String outerKey = outerEntry.getKey();
-//            Map<String, Float> innerMap = outerEntry.getValue();
-//            Log.d("OuterKey", outerKey);
-//            for (Map.Entry<String, Float> innerEntry : innerMap.entrySet()) {
-//                String innerKey = innerEntry.getKey();
-//                Float value = innerEntry.getValue();
-//                Log.d("InnerKey", innerKey);
-//                Log.d("Value", value.toString());
-//                if (outerKey.equals(targetOuterKey) && innerKey.equals(targetInnerKey)) {
-//                    sum += value;
-//                    count++;
-//                }
-//            }
-//        }
-//        float average = sum / count;
-//        Log.d("Average", "Average: " + average);
-
-        //Log Data
-//        for (Map.Entry<String, Map<String, Float>> outerEntry : allData.entrySet()) {
-//            String outerKey = outerEntry.getKey();
-//            Map<String, Float> innerMap = outerEntry.getValue();
-//            for (Map.Entry<String, Float> innerEntry : innerMap.entrySet()) {
-//                String innerKey = innerEntry.getKey();
-//                Float value = innerEntry.getValue();
-//                Log.i("TAG", outerKey + " - " + innerKey + " : " + value);
-//            }
-//        }
-
+        return filteredMap;
     }
+    public static Map<String, Float> filterMapB(Map<String, Float> mapA, Map<String, Float> mapB) {
+        Map<String, Float> filteredMap = new HashMap<>();
+
+        Set<String> keySetA = mapA.keySet();
+        Set<String> keySetB = mapB.keySet();
+
+        for (String keyB : keySetB) {
+            if (keySetA.contains(keyB)) {
+                filteredMap.put(keyB, mapA.get(keyB));
+            }
+        }
+
+        return filteredMap;
+    }
+
+    //--------------
+
+    public void prosesData(Map<String, Map<String, Float>> Data){
+
+        Map<String, Double> weighted = new HashMap<>();
+
+        //Cosine Similarity Clear
+        for (Map.Entry<String, Map<String, Float>> outerEntry : Data.entrySet()) {
+            if (outerEntry.getKey().equals(userID)) {
+                Map<String, Float> a = outerEntry.getValue();
+                for (Map.Entry<String, Float> entry1 : a.entrySet()) {
+                    Log.d("AAAAMap a", entry1.getKey() + " : " + entry1.getValue());
+                }
+                for (Map.Entry<String, Map<String, Float>> innerEntry : Data.entrySet()) {
+                    if (!innerEntry.getKey().equals(userID)){
+                        Map<String, Float> b = innerEntry.getValue();
+
+                        double similarity = cosineSimilarity(a, b);
+                        weighted.put(innerEntry.getKey(),similarity);
+
+                        Log.d("AAAASimilarity", innerEntry.getKey() + " Similarity: " + similarity);
+
+                        for (Map.Entry<String, Float> entry : b.entrySet()) {
+                            Log.d("AAAAMap b", "ID " + innerEntry.getKey()+" | " + entry.getKey() + " : " + entry.getValue());
+                        }
+
+                    }
+                }
+            }
+        }
+        //-----------------------
+
+        ArrayList<String> foodid = new ArrayList<>();
+        for (Map.Entry<String, Map<String, Float>> outerEntry : Data.entrySet()){
+            if (outerEntry.getKey().equals(userID)) {
+                Map<String, Float> a = outerEntry.getValue();
+                for (Map.Entry<String, Float> entry1 : a.entrySet()) {
+                    Log.d("AAAAMap a", entry1.getKey() + " : " + entry1.getValue());
+                    foodid.add(entry1.getKey());
+                }
+            }
+        }
+        getDataPredict(foodid,weighted);
+    }
+
+    public void getDataPredict(ArrayList<String> exceptID, Map<String, Double> weighted){
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference dataRef = db.collection("Feedback");
+
+        dataRef.whereNotIn("FoodID",exceptID)
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    Map<String, Map<String, Double>> allData  = new HashMap<>();
+                    for (QueryDocumentSnapshot snapshot : task.getResult()) {
+                        String userId = snapshot.getString("UserID");
+                        String foodId = snapshot.getString("FoodID");
+                        Double rating = snapshot.getLong("Rating").doubleValue();
+
+                        Map<String, Double> userData = allData.get(foodId);
+                        if (userData == null) {
+                            userData = new HashMap<>();
+                            allData.put(foodId, userData);
+                        }
+                        userData.put(userId, rating);
+                    }
+
+                    // Iterate through allData to view its contents
+                    for (Map.Entry<String, Map<String, Double>> outerMap : allData.entrySet()) {
+                        Log.d("123TAG", "Outer Key: " + outerMap.getKey());
+
+                        //----
+                        Map<String, Double> values = new HashMap<>();
+                        for (Map.Entry<String, Double> innerMap : outerMap.getValue().entrySet()) {
+                            Log.d("123TAG", "Inner Key: " + innerMap.getKey() + " Value: " + innerMap.getValue());
+                            String key = innerMap.getKey();
+                            Double value = innerMap.getValue();
+                            values.put(key,value);
+                        }
+
+
+                        Log.d("123TAG", "Final: " + calculate(values,weighted));
+
+                    }
+
+                    for (Map.Entry<String, Double> entry : weighted.entrySet()) {
+                        Log.d("123TAG_weight", "Key: " + entry.getKey() + " Value: " + entry.getValue());
+                    }
+
+                    //`----------------------------
+
+
+
+                }
+            }
+        });
+    }
+
     private double cosineSimilarity(Map<String, Float> a, Map<String, Float> b) {
         double dotProduct = 0.0;
         double magnitudeA = 0.0;
         double magnitudeB = 0.0;
 
-        for (Map.Entry<String, Float> entry : a.entrySet()) {
+        Map<String, Float> a1 = filterMapA(a,b);
+        Map<String, Float> b1 = filterMapB(b,a);
+
+        logMap(a1, "MapaA");
+        logMap(b1, "MapaB");
+
+        for (Map.Entry<String, Float> entry : a1.entrySet()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                dotProduct += entry.getValue() * b.getOrDefault(entry.getKey(), 0.0f);
+                dotProduct += entry.getValue() * b1.getOrDefault(entry.getKey(), 0.0f);
             }
             magnitudeA += Math.pow(entry.getValue(), 2);
         }
 
-        for (Map.Entry<String, Float> entry : b.entrySet()) {
+        for (Map.Entry<String, Float> entry : b1.entrySet()) {
             magnitudeB += Math.pow(entry.getValue(), 2);
         }
 
@@ -257,15 +362,20 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
         void onclick();
     }
 
-    static Double calculateWeightedAverage(Map<Double, Integer> map) throws ArithmeticException {
-        double num = 0;
-        double denom = 0;
-        for (Map.Entry<Double, Integer> entry : map.entrySet()) {
-            num += entry.getKey() * entry.getValue();
-            denom += entry.getValue();
+    public static Double calculate(Map<String, Double> values, Map<String, Double> weights) {
+        double numerator = 0;
+        double denominator = 0;
+
+        for (Map.Entry<String, Double> innerEntry : values.entrySet()) {
+            String key = innerEntry.getKey();
+            Double value = innerEntry.getValue();
+            Double weight = weights.get(key);
+
+            numerator += value * weight;
+            denominator += weight;
         }
 
-        return num / denom;
+        return (numerator / denominator);
     }
 
 }

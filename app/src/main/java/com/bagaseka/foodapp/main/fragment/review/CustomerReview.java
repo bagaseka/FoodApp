@@ -129,6 +129,7 @@ public class CustomerReview extends AppCompatActivity implements View.OnClickLis
     private void getAllFeedback(GetFeedbackCallback callback) {
         dataAllReviewsRegistration = FirebaseFirestore.getInstance()
                 .collection("Feedback")
+                .whereEqualTo("FoodID", foodID)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {

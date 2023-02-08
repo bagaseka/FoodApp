@@ -78,6 +78,17 @@ public class Cart extends AppCompatActivity implements View.OnClickListener {
 
         putAllDataIntoRecyclerView();
 
+        checkSize();
+
+    }
+
+    public void checkSize(){
+        if (totalPrice.getText() == "0"){
+            CheckOut.setClickable(false);
+            noItem.setVisibility(View.VISIBLE);
+            layout1.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.GONE);
+        }
     }
 
     public void putAllDataIntoRecyclerView(){
