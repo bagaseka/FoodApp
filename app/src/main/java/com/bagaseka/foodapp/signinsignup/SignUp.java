@@ -17,22 +17,20 @@ import com.bagaseka.foodapp.AdminGenerateQrCode;
 import com.example.foodapp.R;
 import com.bagaseka.foodapp.signinsignup.ViewModel.AuthViewModel;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class SignUp extends AppCompatActivity implements View.OnClickListener {
-
     private EditText userEdit,emailEdit,passEdit,retypepassEdit;
     private AuthViewModel viewModel;
     private Button signUpBtn;
     private ImageButton back;
     private Intent moveIntent;
     private LinearLayoutCompat signin;
-    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
-
         viewModel = new ViewModelProvider(this).get(AuthViewModel.class);
         viewModel.getUserData().observe(this, new Observer<FirebaseUser>() {
             @Override
@@ -44,19 +42,11 @@ public class SignUp extends AppCompatActivity implements View.OnClickListener {
                 }
             }
         });
-
-        userEdit = findViewById(R.id.inputName);
-        emailEdit = findViewById(R.id.inputEmail);
-        passEdit = findViewById(R.id.inputPassword);
-        retypepassEdit = findViewById(R.id.retypePass);
-        signUpBtn = findViewById(R.id.SignUp);
+        initialization();
         signUpBtn.setOnClickListener(this);
-        back = findViewById(R.id.back);
         back.setOnClickListener(this);
-        signin = findViewById(R.id.Login);
         signin.setOnClickListener(this);
     }
-
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.SignUp){
@@ -85,7 +75,15 @@ public class SignUp extends AppCompatActivity implements View.OnClickListener {
             overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
         }
     }
-
+    public void initialization(){
+        userEdit = findViewById(R.id.inputName);
+        emailEdit = findViewById(R.id.inputEmail);
+        passEdit = findViewById(R.id.inputPassword);
+        retypepassEdit = findViewById(R.id.retypePass);
+        signUpBtn = findViewById(R.id.SignUp);
+        back = findViewById(R.id.back);
+        signin = findViewById(R.id.Login);
+    }
     public void setSnackbar(View v, int color, String text) {
         Snackbar snackbar = Snackbar.make(v, text,
                 Snackbar.LENGTH_SHORT);
@@ -94,5 +92,4 @@ public class SignUp extends AppCompatActivity implements View.OnClickListener {
         snackbar.setTextColor(Color.WHITE);
         snackbar.show();
     }
-
 }

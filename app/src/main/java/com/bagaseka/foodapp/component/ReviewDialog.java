@@ -67,9 +67,7 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
     private FirebaseAuth auth;
     private OnSubmitListener listener;
 
-    public ReviewDialog(String id, String name,
-                        int count, int price, String imageFood,
-                        String foodOrderKey){
+    public ReviewDialog(String id, String name, int count, int price, String imageFood, String foodOrderKey){
         this.idFood = id;
         this.nameFood = name;
         this.countMenu = count;
@@ -164,8 +162,9 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
 
                 this.dismiss();
             }
+            getDataFromFirestore();
         }
-        getDataFromFirestore();
+
     }
 
     //---------------------------------------------------------
@@ -182,7 +181,7 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
                     for (QueryDocumentSnapshot snapshot : task.getResult()) {
                         String userId = snapshot.getString("UserID");
                         String foodId = snapshot.getString("FoodID");
-                        float rating = snapshot.getLong("Rating").floatValue();
+                        float rating = snapshot.getDouble("Rating").floatValue();
 
                         Map<String, Float> userData = allData.get(userId);
                         if (userData == null) {
@@ -193,7 +192,6 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
                     }
                     prosesData(allData);
                 }
-
             }
         });
     }
@@ -234,7 +232,39 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
         return filteredMap;
     }
 
+    private double cosineSimilarity(Map<String, Float> a, Map<String, Float> b) {
+        double dotProduct = 0.0;
+        double magnitudeA = 0.0;
+        double magnitudeB = 0.0;
+
+        Map<String, Float> a1 = filterMapA(a,b);
+        Map<String, Float> b1 = filterMapB(b,a);
+
+        logMap(a1, "MapaA");
+        logMap(b1, "MapaB");
+
+        for (Map.Entry<String, Float> entry : a1.entrySet()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                dotProduct += entry.getValue() * b1.getOrDefault(entry.getKey(), 0.0f);
+            }
+            magnitudeA += Math.pow(entry.getValue(), 2);
+        }
+        for (Map.Entry<String, Float> entry : b1.entrySet()) {
+            magnitudeB += Math.pow(entry.getValue(), 2);
+        }
+
+        magnitudeA = Math.sqrt(magnitudeA);
+        magnitudeB = Math.sqrt(magnitudeB);
+
+        if (magnitudeA != 0.0 && magnitudeB != 0.0) {
+            return dotProduct / (magnitudeA * magnitudeB);
+        } else {
+            return 0.0;
+        }
+    }
+
     //--------------
+
 
     public void prosesData(Map<String, Map<String, Float>> Data){
 
@@ -284,8 +314,6 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference dataRef = db.collection("Feedback");
 
-        DocumentReference docRef = db.collection("Reccomend").document(userID);
-
         dataRef.whereNotIn("FoodID",exceptID)
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -293,12 +321,12 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
                 if (task.isSuccessful()) {
                     Map<String, Map<String, Double>> allData  = new HashMap<>();
 
-                    Map<String, Double> reccomend = new HashMap<>();
+                    Map<String, Double> recommend = new HashMap<>();
 
                     for (QueryDocumentSnapshot snapshot : task.getResult()) {
                         String userId = snapshot.getString("UserID");
                         String foodId = snapshot.getString("FoodID");
-                        Double rating = snapshot.getLong("Rating").doubleValue();
+                        Double rating = snapshot.getDouble("Rating").doubleValue();
 
                         Map<String, Double> userData = allData.get(foodId);
                         if (userData == null) {
@@ -321,18 +349,18 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
                             values.put(key,value);
                         }
 
-                        reccomend.put(outerMap.getKey(),calculate(values,weighted));
+                        recommend.put(outerMap.getKey(),weightedAverage(values,weighted));
 
-                        Log.d("123TAG", "Final: " + calculate(values,weighted));
+                        Log.d("123TAG", "Final: " + weightedAverage(values,weighted));
 
                     }
 
-                    for (Map.Entry<String, Double> entry : reccomend.entrySet()) {
+                    for (Map.Entry<String, Double> entry : recommend.entrySet()) {
                         Log.d("123TAG_weight", "Key: " + entry.getKey() + " Value: " + entry.getValue());
                     }
 
                     // Create a list of Map entries
-                    ArrayList<Map.Entry<String, Double>> entryList = new ArrayList<>(reccomend.entrySet());
+                    ArrayList<Map.Entry<String, Double>> entryList = new ArrayList<>(recommend.entrySet());
 
                     // Sort the list of entries by value in descending order
                     Collections.sort(entryList, new Comparator<Map.Entry<String, Double>>() {
@@ -367,6 +395,22 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
         });
     }
 
+    public static Double weightedAverage(Map<String, Double> values, Map<String, Double> weights) {
+        double numerator = 0;
+        double denominator = 0;
+
+        for (Map.Entry<String, Double> innerEntry : values.entrySet()) {
+            String key = innerEntry.getKey();
+            Double value = innerEntry.getValue();
+            Double weight = weights.get(key);
+
+            numerator += value * weight;
+            denominator += weight;
+        }
+
+        return (numerator / denominator);
+    }
+
     public void addToFirestore(ArrayList<String> highValueKeys){
         FirebaseFirestore.getInstance()
                 .collection("Recommend").document(userID)
@@ -377,7 +421,7 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
                         if (document.exists()){
 
                             DocumentReference docRef = FirebaseFirestore.getInstance()
-                                    .collection("Reccomend").document(userID);
+                                    .collection("Recommend").document(userID);
 
                             docRef.update("FoodID", highValueKeys);
 
@@ -387,7 +431,7 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
                             docData.put("FoodID", highValueKeys);
 
                             FirebaseFirestore.getInstance()
-                                    .collection("Reccomend")
+                                    .collection("Recommend")
                                     .document(userID)
                                     .set(docData)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -404,38 +448,6 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
     }
 
 
-    private double cosineSimilarity(Map<String, Float> a, Map<String, Float> b) {
-        double dotProduct = 0.0;
-        double magnitudeA = 0.0;
-        double magnitudeB = 0.0;
-
-        Map<String, Float> a1 = filterMapA(a,b);
-        Map<String, Float> b1 = filterMapB(b,a);
-
-        logMap(a1, "MapaA");
-        logMap(b1, "MapaB");
-
-        for (Map.Entry<String, Float> entry : a1.entrySet()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                dotProduct += entry.getValue() * b1.getOrDefault(entry.getKey(), 0.0f);
-            }
-            magnitudeA += Math.pow(entry.getValue(), 2);
-        }
-
-        for (Map.Entry<String, Float> entry : b1.entrySet()) {
-            magnitudeB += Math.pow(entry.getValue(), 2);
-        }
-
-        magnitudeA = Math.sqrt(magnitudeA);
-        magnitudeB = Math.sqrt(magnitudeB);
-
-        if (magnitudeA != 0.0 && magnitudeB != 0.0) {
-            return dotProduct / (magnitudeA * magnitudeB);
-        } else {
-            return 0.0;
-        }
-    }
-
     public void updateList(OnSubmitListener listener){
         this.listener = listener;
     }
@@ -443,21 +455,4 @@ public class ReviewDialog extends BottomSheetDialogFragment implements View.OnCl
     public interface OnSubmitListener{
         void onclick();
     }
-
-    public static Double calculate(Map<String, Double> values, Map<String, Double> weights) {
-        double numerator = 0;
-        double denominator = 0;
-
-        for (Map.Entry<String, Double> innerEntry : values.entrySet()) {
-            String key = innerEntry.getKey();
-            Double value = innerEntry.getValue();
-            Double weight = weights.get(key);
-
-            numerator += value * weight;
-            denominator += weight;
-        }
-
-        return (numerator / denominator);
-    }
-
 }

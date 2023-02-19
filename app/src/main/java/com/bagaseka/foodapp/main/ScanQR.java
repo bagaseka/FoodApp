@@ -59,5 +59,4 @@ public class ScanQR extends AppCompatActivity {
         super.onPause();
     }
 
-
 }

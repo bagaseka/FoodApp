@@ -60,11 +60,13 @@
         <entry key="..\:/Android Studio Project/FoodApp/app/src/main/res/layout/activity_test_recommend.xml" value="0.25" />
         <entry key="..\:/Android Studio Project/FoodApp/app/src/main/res/layout/activity_test_recycler_view.xml" value="0.1" />
         <entry key="..\:/Android Studio Project/FoodApp/app/src/main/res/layout/bottom_sheet_feedback.xml" value="0.22447916666666667" />
+        <entry key="..\:/Android Studio Project/FoodApp/app/src/main/res/layout/bottom_sheet_layout.xml" value="0.22447916666666667" />
         <entry key="..\:/Android Studio Project/FoodApp/app/src/main/res/layout/card_rating.xml" value="0.25" />
         <entry key="..\:/Android Studio Project/FoodApp/app/src/main/res/layout/card_review_rating.xml" value="0.25" />
         <entry key="..\:/Android Studio Project/FoodApp/app/src/main/res/layout/card_test.xml" value="0.25" />
         <entry key="..\:/Android Studio Project/FoodApp/app/src/main/res/layout/content_test.xml" value="0.22447916666666667" />
         <entry key="..\:/Android Studio Project/FoodApp/app/src/main/res/layout/feedback.xml" value="0.25" />
+        <entry key="..\:/Android Studio Project/FoodApp/app/src/main/res/layout/fragment_bottom_sheet_dialog.xml" value="0.22447916666666667" />
         <entry key="..\:/Android Studio Project/FoodApp/app/src/main/res/layout/fragment_cart.xml" value="0.22447916666666667" />
         <entry key="..\:/Android Studio Project/FoodApp/app/src/main/res/layout/fragment_favorite.xml" value="0.22447916666666667" />
         <entry key="..\:/Android Studio Project/FoodApp/app/src/main/res/layout/fragment_history.xml" value="0.18" />

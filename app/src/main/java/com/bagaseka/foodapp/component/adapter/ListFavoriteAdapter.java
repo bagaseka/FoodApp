@@ -112,7 +112,6 @@ public class ListFavoriteAdapter extends RecyclerView.Adapter<ListFavoriteAdapte
         return favData.size();
     }
 
-
     class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView nameFood, priceFood, itemCount, countOrder, rateReview;

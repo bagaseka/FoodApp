@@ -24,7 +24,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 public class SearchActivity extends AppCompatActivity implements View.OnClickListener {
-
     EditText edt_search;
     ImageButton back;
     private RecyclerView nFoodSeachRv;
@@ -33,8 +32,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     private CollectionReference reference = firestore.collection("Product");
     private FirestoreRecyclerAdapter adapterSearch;
     private Query q;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +39,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         edt_search = findViewById(R.id.edt_search);
         nFoodSeachRv = findViewById(R.id.nFoodSeachRv);
         nFoodSeachRv.setLayoutManager(new LinearLayoutManager(this,RecyclerView.VERTICAL,false));
-
         edt_search.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -53,7 +49,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 q = reference.orderBy("Nama")
                         .startAt(s.toString().trim()).endAt(s.toString().trim() + "\uf8ff");
-                showAdapter(q);
+                showMenu(q);
             }
 
             @Override
@@ -61,12 +57,10 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
             }
         });
-
         back = findViewById(R.id.back);
         back.setOnClickListener(this);
     }
-
-    public void showAdapter(Query query){
+    public void showMenu(Query query){
         options = new FirestoreRecyclerOptions.Builder<HomeMainList>()
                 .setQuery(query, new SnapshotParser<HomeMainList>() {
                     @Override
@@ -85,7 +79,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         adapterSearch = new ListMenuAdapter(options,R.layout.list_card_search,this);
         nFoodSeachRv.setAdapter(adapterSearch);
     }
-
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.back){

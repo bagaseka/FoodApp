@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.bagaseka.foodapp.main.fragment.Home;
-import com.bagaseka.foodapp.main.fragment.History;
+import com.bagaseka.foodapp.main.fragment.MyOrder;
 import com.bagaseka.foodapp.main.fragment.User;
 
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
             case 0:
                 return new Home();
             case 1:
-                return new History();
+                return new MyOrder();
             case 2:
                 return new User();
             default:

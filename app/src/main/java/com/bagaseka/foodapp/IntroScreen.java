@@ -29,8 +29,6 @@ import com.synnapps.carouselview.CarouselView;
 
 public class IntroScreen extends AppCompatActivity implements View.OnClickListener {
     private static final int MY_PERMISSIONS_REQUEST_CAMERA = 100;
-    private AuthViewModel viewModel;
-    private FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,9 +47,7 @@ public class IntroScreen extends AppCompatActivity implements View.OnClickListen
                     new String[]{Manifest.permission.CAMERA},
                     MY_PERMISSIONS_REQUEST_CAMERA);
         }
-
     }
-
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String[] permissions, int[] grantResults) {
@@ -71,13 +67,12 @@ public class IntroScreen extends AppCompatActivity implements View.OnClickListen
             }
         }
     }
-
     @Override
     protected void onStart() {
         super.onStart();
 
-        auth = FirebaseAuth.getInstance();
-        viewModel = new ViewModelProvider(this ).get(AuthViewModel.class);
+        //FirebaseAuth auth = FirebaseAuth.getInstance();
+        AuthViewModel viewModel = new ViewModelProvider(this).get(AuthViewModel.class);
         viewModel.getUserData().observe(this, new Observer<FirebaseUser>() {
             @Override
             public void onChanged(FirebaseUser firebaseUser) {
@@ -93,7 +88,6 @@ public class IntroScreen extends AppCompatActivity implements View.OnClickListen
             }
         });
     }
-
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.SignIn){

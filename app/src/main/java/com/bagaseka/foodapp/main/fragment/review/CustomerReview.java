@@ -35,7 +35,6 @@ public class CustomerReview extends AppCompatActivity implements View.OnClickLis
     private ListCustomerReviewAdapter adapter;
     private String foodID;
     private TextView rating, counterReviewOrder;
-
     private ListenerRegistration dataReviewRegistration = null;
     private ListenerRegistration dataAllReviewsRegistration = null;
 
@@ -73,7 +72,6 @@ public class CustomerReview extends AppCompatActivity implements View.OnClickLis
             }
         });
     }
-
     private void getAllRating(){
         Query dataReviewQuery = FirebaseFirestore.getInstance()
                 .collection("Feedback")
@@ -95,7 +93,6 @@ public class CustomerReview extends AppCompatActivity implements View.OnClickLis
             }
         });
     }
-
     private void getUserData(List<ReviewItem> items, GetFeedbackCallback callback) {
         FirebaseFirestore.getInstance()
                 .collection("Akun")
@@ -125,7 +122,6 @@ public class CustomerReview extends AppCompatActivity implements View.OnClickLis
                     }
                 });
     }
-
     private void getAllFeedback(GetFeedbackCallback callback) {
         dataAllReviewsRegistration = FirebaseFirestore.getInstance()
                 .collection("Feedback")

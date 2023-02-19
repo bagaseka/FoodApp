@@ -28,18 +28,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class History extends Fragment {
+public class MyOrder extends Fragment {
 
-    private final String TAG = "History";
-
+    private final String TAG = "MyOrder";
     private String userID;
     private final OrderListChildAdapter childAdapter = new OrderListChildAdapter();
-
     private ListenerRegistration keysListener = null;
     private Set<ListenerRegistration> descListener = new HashSet<>();
     private ListenerRegistration productsListener = null;
-
-    public History() {
+    public MyOrder() {
         // Required empty public constructor
     }
 
@@ -93,7 +90,6 @@ public class History extends Fragment {
             });
         }));
     }
-
     private void getHistoryKeys(GetKeysCallback callback) {
         Query queryMenu = FirebaseFirestore.getInstance()
                 .collection("Pesanan")
@@ -114,7 +110,6 @@ public class History extends Fragment {
             }
         });
     }
-
     private void getHistoryFoodDesc(String id, GetFoodDescCallback callback) {
         Query queryOrderDataMenu = FirebaseFirestore.getInstance()
                 .collection("Pesanan")
@@ -148,7 +143,6 @@ public class History extends Fragment {
 
         }));
     }
-
     private void getProducts(GetProductsCallback callback) {
         Query queryFoodData = FirebaseFirestore.getInstance()
                 .collection("Product");
@@ -198,19 +192,15 @@ public class History extends Fragment {
 
         super.onDestroyView();
     }
-
     public interface OnDataCallback {
         void onCallback(ChildItem item);
     }
-
     private interface GetProductsCallback {
         void data(List<ChildItem> items);
     }
-
     private interface GetFoodDescCallback {
         void data(List<String> orderFoodId, List<String> menuCounts, List<Boolean> statusReviews);
     }
-
     private interface GetKeysCallback {
         void keys(String key, Boolean progress);
     }

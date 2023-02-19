@@ -51,7 +51,6 @@ import java.util.Map;
 public class Checkout extends AppCompatActivity implements View.OnClickListener {
 
     public static final String TABLE_ID = "table_id";
-
     private RecyclerView checkoutRV;
     private TextView subPrice,ppn,total,moreFood,table,name,orderID;
     private Button Order;
@@ -106,7 +105,6 @@ public class Checkout extends AppCompatActivity implements View.OnClickListener 
         });
 
     }
-
     public void setDataIntoRecyclerview(){
         Query queryCartData = FirebaseFirestore.getInstance()
                 .collection("Cart")
@@ -166,7 +164,6 @@ public class Checkout extends AppCompatActivity implements View.OnClickListener 
             }
         });
     }
-
     public void orderProgres(String tableID){
 
         String currentDateTimeString = java.text.DateFormat.getDateInstance().format(new Date());

@@ -26,7 +26,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class SignIn extends AppCompatActivity implements View.OnClickListener {
-
     private EditText inputEmail,inputPassword;
     private TextView SignUp;
     private Button SignIn;
@@ -36,32 +35,17 @@ public class SignIn extends AppCompatActivity implements View.OnClickListener {
     private FirebaseAuth auth;
     private LinearLayoutCompat ForgotPass;
     private TextInputLayout emailLy;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
-        auth = FirebaseAuth.getInstance();
-
         autoLogin();
-
-        inputEmail = findViewById(R.id.inputEmail);
-        inputPassword = findViewById(R.id.inputPassword);
-
-        SignUp = findViewById(R.id.SignUp);
-        ForgotPass = findViewById(R.id.ForgotPass);
-        SignIn = findViewById(R.id.SignIn);
-        Back = findViewById(R.id.back);
-
-        emailLy = findViewById(R.id.emailLy);
-
+        initialization();
         Back.setOnClickListener(this);
         SignUp.setOnClickListener(this);
         ForgotPass.setOnClickListener(this);
         SignIn.setOnClickListener(this);
-
     }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -96,7 +80,19 @@ public class SignIn extends AppCompatActivity implements View.OnClickListener {
                 break;
         }
     }
+    public void initialization(){
+        auth = FirebaseAuth.getInstance();
 
+        inputEmail = findViewById(R.id.inputEmail);
+        inputPassword = findViewById(R.id.inputPassword);
+
+        SignUp = findViewById(R.id.SignUp);
+        ForgotPass = findViewById(R.id.ForgotPass);
+        SignIn = findViewById(R.id.SignIn);
+        Back = findViewById(R.id.back);
+
+        emailLy = findViewById(R.id.emailLy);
+    }
     public void autoLogin(){
         viewModel = new ViewModelProvider(this ).get(AuthViewModel.class);
         viewModel.getUserData().observe(this, new Observer<FirebaseUser>() {
