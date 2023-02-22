@@ -34,8 +34,8 @@ public class AuthViewModel extends AndroidViewModel {
     public void register(View v, String email, String pass, String user){
         repository.register(v,email, pass, user);
     }
-    public void signIn(String email , String pass){
-        repository.login(email, pass);
+    public void signIn(View v, String email , String pass){
+        repository.login(v, email, pass);
     }
     public void forgotPassword(View v, String email){
         repository.forgotPassword(v,email);

@@ -175,27 +175,31 @@ public class Home extends Fragment {
                                 reccomendLayout.setVisibility(View.VISIBLE);
                                 List<String> foodRec = (List<String>) document.get("FoodID");
 
-                                Query query = FirebaseFirestore.getInstance()
-                                        .collection("Product")
-                                        .whereIn("FoodID",foodRec);
+                                if (!foodRec.isEmpty()){
+                                    Query query = FirebaseFirestore.getInstance()
+                                            .collection("Product")
+                                            .whereIn("FoodID",foodRec);
 
-                                options = new FirestoreRecyclerOptions.Builder<HomeMainList>()
-                                        .setQuery(query, new SnapshotParser<HomeMainList>() {
-                                            @Override
-                                            public HomeMainList parseSnapshot(@NonNull DocumentSnapshot snapshot) {
-                                                /*Write the process you want to do when taking a snapshot*/
-                                                String nama = snapshot.getString("Nama");
-                                                String harga = String.valueOf(snapshot.get("Harga"));
-                                                String image = snapshot.getString("Image");
-                                                String id = snapshot.getId();
-                                                String numOrder = String.valueOf(snapshot.get("numOrder"));
-                                                HomeMainList List = new HomeMainList(nama, harga, image, id, numOrder);
-                                                return List;
-                                            }
-                                        }).setLifecycleOwner(Home.this).build();
+                                    options = new FirestoreRecyclerOptions.Builder<HomeMainList>()
+                                            .setQuery(query, new SnapshotParser<HomeMainList>() {
+                                                @Override
+                                                public HomeMainList parseSnapshot(@NonNull DocumentSnapshot snapshot) {
+                                                    /*Write the process you want to do when taking a snapshot*/
+                                                    String nama = snapshot.getString("Nama");
+                                                    String harga = String.valueOf(snapshot.get("Harga"));
+                                                    String image = snapshot.getString("Image");
+                                                    String id = snapshot.getId();
+                                                    String numOrder = String.valueOf(snapshot.get("numOrder"));
+                                                    HomeMainList List = new HomeMainList(nama, harga, image, id, numOrder);
+                                                    return List;
+                                                }
+                                            }).setLifecycleOwner(Home.this).build();
 
-                                adapterRecommend = new ListMenuAdapter(options, R.layout.list_card_recommend,getActivity());
-                                nFoodRecommendRv.setAdapter(adapterRecommend);
+                                    adapterRecommend = new ListMenuAdapter(options, R.layout.list_card_recommend,getActivity());
+                                    nFoodRecommendRv.setAdapter(adapterRecommend);
+                                }else{
+                                    reccomendLayout.setVisibility(View.GONE);
+                                }
                             }else{
                                 reccomendLayout.setVisibility(View.GONE);
                             }

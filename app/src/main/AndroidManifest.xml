@@ -20,6 +20,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".Invoice"
+            android:exported="false"
+            android:label="@string/title_activity_invoice"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name="com.bagaseka.foodapp.main.recommended.TestRecommend"
             android:exported="false" />
         <activity
@@ -46,13 +51,13 @@
             android:name="com.bagaseka.foodapp.main.Favorite"
             android:exported="false" />
         <activity
-            android:name="com.bagaseka.foodapp.main.fragment.order.Payment"
+            android:name=".Payment"
             android:exported="false" />
         <activity
-            android:name="com.bagaseka.foodapp.main.fragment.order.SelectTable"
+            android:name=".SelectTable"
             android:exported="false" />
         <activity
-            android:name="com.bagaseka.foodapp.main.fragment.order.Checkout"
+            android:name=".Checkout"
             android:exported="false" />
         <activity
             android:name="com.bagaseka.foodapp.main.Cart"

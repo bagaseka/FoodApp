@@ -53,7 +53,7 @@ public class SignIn extends AppCompatActivity implements View.OnClickListener {
                 String email = inputEmail.getText().toString();
                 String pass = inputPassword.getText().toString();
                 if (!email.isEmpty() && !pass.isEmpty()){
-                    viewModel.signIn(email , pass);
+                    viewModel.signIn(v,email , pass);
                 }else if (email.isEmpty()){
                     setSnackbar(v, R.color.colorPrimary, "Email can not be empty");
                 }else if (!email.isEmpty() && pass.isEmpty()){

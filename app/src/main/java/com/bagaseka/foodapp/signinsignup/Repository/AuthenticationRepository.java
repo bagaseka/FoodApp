@@ -81,7 +81,7 @@ public class AuthenticationRepository {
         });
     }
 
-    public void login(String email , String pass){
+    public void login(View v,String email , String pass){
 
         auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
@@ -94,6 +94,8 @@ public class AuthenticationRepository {
 //                    }
                     firebaseUserMutableLiveData.postValue(auth.getCurrentUser());
 
+                }else{
+                    setSnackbar(v, R.color.colorPrimary, "Wrong Password");
                 }
             }
         });

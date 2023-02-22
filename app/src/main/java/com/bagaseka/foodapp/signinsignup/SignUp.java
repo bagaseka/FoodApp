@@ -53,6 +53,7 @@ public class SignUp extends AppCompatActivity implements View.OnClickListener {
             String email = emailEdit.getText().toString();
             String pass = passEdit.getText().toString();
             String user = userEdit.getText().toString();
+            String repass = retypepassEdit.getText().toString();
 
             if (user.isEmpty()){
                 setSnackbar(v, R.color.colorPrimary, "Username can not be empty");
@@ -60,7 +61,9 @@ public class SignUp extends AppCompatActivity implements View.OnClickListener {
                 setSnackbar(v, R.color.colorPrimary, "Email can not be empty");
             }else if (pass.isEmpty()) {
                 setSnackbar(v, R.color.colorPrimary, "Password can not be empty");
-            }else if (!retypepassEdit.getText().toString().trim().equals(pass)) {
+            }else if (pass.length() < 6) {
+                setSnackbar(v, R.color.colorPrimary, "Minimum password lenght is 6");
+            }else if (!repass.equals(pass)) {
                 setSnackbar(v, R.color.colorPrimary, "Password Not Match");
             }else{
                 viewModel.register(v, email , pass , user);
