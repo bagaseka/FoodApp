@@ -1,33 +1,24 @@
 package com.bagaseka.foodapp.main.fragment.order;
-
-import static android.Manifest.permission.VIBRATE;
-import static android.Manifest.permission_group.CAMERA;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
-import com.bagaseka.foodapp.main.Cart;
-import com.bagaseka.foodapp.main.FoodDetail;
-import com.bagaseka.foodapp.main.ScanQR;
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
+import com.budiyev.android.codescanner.ErrorCallback;
 import com.example.foodapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.Result;
@@ -54,10 +45,15 @@ public class SelectTable extends AppCompatActivity {
                 });
             }
         });
-        scannerView.setOnClickListener(new View.OnClickListener() {
+        mCodeScanner.setErrorCallback(new ErrorCallback() {
             @Override
-            public void onClick(View view) {
-                mCodeScanner.startPreview();
+            public void onError(@NonNull Throwable thrown) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCodeScanner.startPreview();
+                    }
+                });
             }
         });
     }
@@ -78,18 +74,22 @@ public class SelectTable extends AppCompatActivity {
         Query checkQr = FirebaseFirestore.getInstance()
                 .collection("Meja");
 
-        checkQr.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        checkQr.whereEqualTo("TableID",id)
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                for (DocumentSnapshot doc : task.getResult()){
-                    if (id.equals(doc.getId())){
-                        Intent intent = new Intent(SelectTable.this, Checkout.class);
-                        intent.putExtra(Checkout.TABLE_ID, doc.getString("TableName"));
-                        startActivity(intent);
-                        overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
-                        finish();
-                    }
+
+                if (!task.getResult().isEmpty()){
+                    Intent intent = new Intent(SelectTable.this, Checkout.class);
+                    intent.putExtra(Checkout.TABLE_ID, id);
+                    startActivity(intent);
+                    overridePendingTransition(R.anim.anim_in_right, R.anim.anim_out_left);
+                    finish();
+                }else{
+                    Toast.makeText(SelectTable.this, "Please scan the QR CODE on your table", Toast.LENGTH_SHORT).show();
+                    mCodeScanner.startPreview();
                 }
+
             }
         });
     }
